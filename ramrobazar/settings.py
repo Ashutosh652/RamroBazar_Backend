@@ -38,8 +38,11 @@ INSTALLED_APPS = [
     'ramrobazar.account.apps.AccountConfig',
     'ramrobazar.dashboard.apps.DashboardConfig',
     'ramrobazar.inventory.apps.InventoryConfig',
+    'ramrobazar.drf.apps.DrfConfig',
+    'ramrobazar.demo.apps.DemoConfig',
     'mptt',
     'django_elasticsearch_dsl',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -94,7 +97,7 @@ WSGI_APPLICATION = 'ramrobazar.wsgi.application'
 #         'ENGINE': config('ENGINE'),
 #         'NAME': config('POSTGRES_DB'),
 #         'USER': config('POSTGRES_USER'),
-#         'PASSWORD': 'postgres',
+#         'PASSWORD': '',
 #         'HOST': config('HOST'),
 #         'PORT': config('PORT'),
 #     }
@@ -130,7 +133,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Kathmandu'
+TIME_ZONE = config('TIME_ZONE')
 
 USE_I18N = True
 
@@ -158,10 +161,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'account.User'
 
-PHONENUMBER_DB_FORMAT = 'NATIONAL'
-PHONENUMBER_DEFAULT_REGION = 'NP'
-PHONENUMBER_DEFAULT_FORMAT = 'NATIONAL'
+PHONENUMBER_DB_FORMAT = config('PHONENUMBER_DB_FORMAT')
+PHONENUMBER_DEFAULT_REGION = config('PHONENUMBER_DEFAULT_REGION')
+PHONENUMBER_DEFAULT_FORMAT = config('PHONENUMBER_DEFAULT_FORMAT')
 
 ELASTICSEARCH_DSL = {
-    'default' : {'hosts': '127.0.0.1:9200'}
+    'default' : {'hosts': 'esearch:9200'},
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,
 }

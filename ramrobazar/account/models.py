@@ -12,6 +12,7 @@ class AccountManager(BaseUserManager):
         other_fields.setdefault('is_staff', True)
         other_fields.setdefault('is_superuser', True)
         other_fields.setdefault('is_active', True)
+        other_fields.setdefault('is_contact_number_verified', True)
         if other_fields.get('is_staff') is not True:
             raise ValueError('Superuser must be assigned to is_staff=True')
         if other_fields.get('is_superuser') is not True:
@@ -40,8 +41,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     contact_number = PhoneNumberField(blank=False, null=False, unique=True)
     date_joined = models.DateTimeField(default=timezone.now, blank=True)
     is_contact_number_verified = models.BooleanField(default=False)
+    is_blocked = models.BooleanField(default=False) #represents if the account of the user is blocked by admin
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True) #represents if the account of the user is active or inactive due to different reasons
     is_superuser = models.BooleanField(default=False)
 
     objects = AccountManager()
@@ -61,14 +63,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(
-        User, related_name='profile', on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE, primary_key=True)
     email = models.EmailField(max_length=200, unique=True, null=True, blank=True)
     is_email_verified = models.BooleanField(default=False)
     address = models.CharField(max_length=200, null=True, blank=True)
-    profile_pic = models.ImageField(
-        default='default_profile.jpg', upload_to='profile_pics', null=True, blank=True)
+    profile_pic = models.ImageField(default='default_profile.jpg', upload_to='profile_pics', null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
+    no_sold_products = models.IntegerField(null=False, default=0, blank=True) #represents the total number of products sold by the user
+    no_sold_services = models.IntegerField(null=False, default=0, blank=True) #represents the total number of services sold by the user
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
