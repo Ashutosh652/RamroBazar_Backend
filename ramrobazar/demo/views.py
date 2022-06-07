@@ -1,16 +1,19 @@
 from django.shortcuts import render
 from django.views import View
-from ramrobazar.inventory.models import Product
+from ramrobazar.inventory.models import ProductOrService, Media
 
 
 class HomeView(View):
 	def get(self, request, *args, **kwargs):
-		products = Product.objects.all()
-		# form = PostForm()
+		products_and_services = ProductOrService.objects.all()
+		media = Media.objects.all()
 		context = {
-		'products':products,
+		'products_and_services': products_and_services,
+		'media': media,
+		# 'attributes': attributes,
+		# 'url': url,
 		}
-		return render(request, 'demo/home.html', context)
+		return render(request, 'demo/home.django-html', context)
 
 	# def post(self, request, *args, **kwargs):
 	# 	logged_in_user = request.user
@@ -29,10 +32,10 @@ class HomeView(View):
 	# 	}
 	# 	return render(request, 'healthpoint/home.html', context)
 
-class ProductDetailView(View):
+class DetailView(View):
 	def get(self, request, slug, *args, **kwargs):
-		product = Product.objects.get(slug=slug)
+		product_or_service = ProductOrService.objects.get(slug=slug)
 		context = {
-			'product': product,
+			'product_or_service': product_or_service,
 		}
-		return render(request, 'demo/product-detail.html', context)
+		return render(request, 'demo/product-detail.django-html', context)

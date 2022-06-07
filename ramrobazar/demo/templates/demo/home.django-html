@@ -1,0 +1,25 @@
+{% extends "demo/base.django-html" %} {% block content %}
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+  <div class="container">
+    {% for product_or_service in products_and_services %}
+    <div class="card" style="width: 18rem">
+      {% for media in product_or_service.media.all %}
+      {% if media.is_feature == True %}
+      <img class="card-img-top" src="{{ media.image.url }}" />
+      {% endif %}
+      {% endfor %}
+      <div class="card-body">
+        <h5 class="card-title">{{ product_or_service.name }}</h5>
+        <p class="card-text">{{ product_or_service.description }}</p>
+        <a href="{% url 'demo:detail' slug=product_or_service.slug %}" class="btn btn-primary">Detail</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</body>
+
+</html>
+{% endblock %}

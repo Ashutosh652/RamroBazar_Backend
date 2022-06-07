@@ -45,11 +45,26 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True) #represents if the account of the user is active or inactive due to different reasons
     is_superuser = models.BooleanField(default=False)
+    email = models.EmailField(max_length=200, unique=True, null=True, blank=True)
+    is_email_verified = models.BooleanField(default=False)
+    address = models.CharField(max_length=200, null=True, blank=True)
+    profile_pic = models.ImageField(default='default_profile.jpg', upload_to='profile_pics', null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    no_sold_products = models.IntegerField(null=False, default=0, blank=True) #represents the total number of products sold by the user
+    no_sold_services = models.IntegerField(null=False, default=0, blank=True) #represents the total number of services sold by the user
 
     objects = AccountManager()
 
     USERNAME_FIELD = 'contact_number'
     REQUIRED_FIELDS = ['first_name', 'last_name']
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        img = Image.open(self.profile_pic.path)
+        if img.height > 300 or img.width > 300:
+            output_size = (300, 300)
+            img.thumbnail(output_size)
+            img.save(self.profile_pic.path)
 
     def __str__(self):
         return self.first_name
@@ -62,23 +77,38 @@ class User(AbstractBaseUser, PermissionsMixin):
 # ....................CUSTOM USER MODEL...........................
 
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE, primary_key=True)
-    email = models.EmailField(max_length=200, unique=True, null=True, blank=True)
-    is_email_verified = models.BooleanField(default=False)
-    address = models.CharField(max_length=200, null=True, blank=True)
-    profile_pic = models.ImageField(default='default_profile.jpg', upload_to='profile_pics', null=True, blank=True)
-    date_of_birth = models.DateField(null=True, blank=True)
-    no_sold_products = models.IntegerField(null=False, default=0, blank=True) #represents the total number of products sold by the user
-    no_sold_services = models.IntegerField(null=False, default=0, blank=True) #represents the total number of services sold by the user
+# class UserProfile(models.Model):
+#     user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE, primary_key=True)
+#     email = models.EmailField(max_length=200, unique=True, null=True, blank=True)
+#     is_email_verified = models.BooleanField(default=False)
+#     address = models.CharField(max_length=200, null=True, blank=True)
+#     profile_pic = models.ImageField(default='default_profile.jpg', upload_to='profile_pics', null=True, blank=True)
+#     date_of_birth = models.DateField(null=True, blank=True)
+#     no_sold_products = models.IntegerField(null=False, default=0, blank=True) #represents the total number of products sold by the user
+#     no_sold_services = models.IntegerField(null=False, default=0, blank=True) #represents the total number of services sold by the user
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        img = Image.open(self.profile_pic.path)
-        if img.height > 300 or img.width > 300:
-            output_size = (300, 300)
-            img.thumbnail(output_size)
-            img.save(self.profile_pic.path)
+#     def save(self, *args, **kwargs):
+#         super().save(*args, **kwargs)
+#         img = Image.open(self.profile_pic.path)
+#         if img.height > 300 or img.width > 300:
+#             output_size = (300, 300)
+#             img.thumbnail(output_size)
+#             img.save(self.profile_pic.path)
 
-    def __str__(self):
-        return self.user.first_name
+#     def __str__(self):
+#         return self.user.first_name
+
+
+class Thread(models.Model):
+	sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+	receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+
+
+class Message(models.Model):
+	thread = models.ForeignKey(Thread, related_name='message', on_delete=models.CASCADE, blank=True, null=True)
+	# sender_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+	# receiver_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+	body = models.CharField(max_length=1000)
+	# image = models.ImageField(upload_to='message_photos', blank=True, null=True)
+	date = models.DateTimeField(default=timezone.now)
+	# is_read = models.BooleanField(default=False)
