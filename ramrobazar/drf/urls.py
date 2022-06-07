@@ -6,9 +6,10 @@ from ramrobazar.drf import views
 app_name = 'drf'
 
 router = DefaultRouter()
-router.register(r'products', views.AllProductsViewSet, basename='allproducts')
-# router.register(r'productinventory', views.ProductInventoryViewSet, basename='products')
+router.register(r'productsandservices', views.ProductsOrServicesList, basename='productsandservices')
+router.register(r'user/register', views.UserRegister, basename='user-register')
 
 urlpatterns = [
     path('', include(router.urls)),
+    # path('user/register', views.UserRegister.as_view(), name='user-register'),
 ]
