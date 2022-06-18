@@ -28,12 +28,6 @@ class Brand(models.Model):
         return self.name
 
 
-
-
-
-
-
-
 class ProductOrService(models.Model):
     web_id = models.CharField(max_length=50, unique=True, verbose_name=_("product web id"), help_text=_("format: required, unique"))
     slug = models.SlugField(max_length=255, null=False, blank=False, verbose_name=_("product/service url"), help_text=_("format: required, letters, numbers, underscore or hyphen"))
@@ -67,8 +61,8 @@ class Product(models.Model):
 
 
 class Service(models.Model):
-    price_min = models.DecimalField(max_digits=7, decimal_places=2, verbose_name=_("Minimum Cost of Service"), help_text=_("format: max price = 99999.99"))
-    price_max = models.DecimalField(max_digits=7, decimal_places=2, verbose_name=_("Maximum Cost of Service"), help_text=_("format: max price = 99999.99"))
+    price_min = models.DecimalField(null=True, blank=True, max_digits=7, decimal_places=2, verbose_name=_("Minimum Cost of Service"), help_text=_("format: max price = 99999.99"))
+    price_max = models.DecimalField(null=True, blank=True, max_digits=7, decimal_places=2, verbose_name=_("Maximum Cost of Service"), help_text=_("format: max price = 99999.99"))
     no_sold_times = models.IntegerField(null=False, default=0, verbose_name=_("No. of times service is sold"))
     available_date_start = models.DateField(null=True, blank=True, verbose_name=_("service start date"), help_text=_("date when service starts. can be null."))
     available_date_end = models.DateField(null=True, blank=True, verbose_name=_("service end date"), help_text=_("date when service ends. can be null."))
@@ -218,15 +212,15 @@ class SoldStatus(models.Model):
         return f"{self.product_or_service.name}: Buyer Status: {self.buyer_status} : Seller Status: {self.seller_status}"
 
 
-class Comment(models.Model):
+class Comment(MPTTModel):
     product_or_service = models.ForeignKey(ProductOrService, on_delete=models.CASCADE, related_name='comments', null=True, blank=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     date_commented = models.DateTimeField(auto_now_add=True, editable=False, verbose_name=_("date commented"))
 	# likes = models.ManyToManyField(User, blank=True, related_name='comment_likes')
 	# dislikes = models.ManyToManyField(User, blank=True, related_name='comment_dislikes')
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    # parent = TreeForeignKey("self", on_delete=models.PROTECT, related_name="comment_children", null=True, blank=True, verbose_name=_("parent comment"), help_text=_("format: not required"))
+    # parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    parent = TreeForeignKey("self", on_delete=models.PROTECT, related_name="comment_children", null=True, blank=True, verbose_name=_("parent comment"), help_text=_("format: not required"))
 
     @property
     def children(self):

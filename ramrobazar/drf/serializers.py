@@ -1,7 +1,21 @@
 # from pyexpat import model
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from ramrobazar.inventory.models import Product, Brand, ProductOrService
 from ramrobazar.account.models import User
+
+
+
+#..........................Customizing Token Claims...................................................................
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['contact_number'] = str(user.contact_number)
+        return token
+#..........................Customizing Token Claims End...................................................................
 
 # class ProductAttributeValueSerializer(serializers.ModelSerializer):
 #     class Meta:
