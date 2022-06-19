@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+from ctypes import cast
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
@@ -27,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG')
+DEBUG = config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'afternoon-thicket-97192.herokuapp.com',]
 
@@ -115,8 +116,9 @@ DATABASES = {
 #     }
 # }
 
-DATABASE_URL = config('DATABASE_URL').replace("\'", "")
-db_from_env = dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+# DATABASE_URL = config('DATABASE_URL').replace("\'", "")
+DATABASE_URL = os.environ.get('DATABASE_URL')
+db_from_env = dj_database_url.config(DATABASE_URL, conn_max_age=600, ssl_require=False)
 DATABASES['default'].update(db_from_env)
 # DATABASES = {
 #     'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
@@ -239,6 +241,6 @@ SIMPLE_JWT = {
 # CORS_ALLOW_ALL_ORIGINS: True
 CORS_ORIGIN_ALLOW_ALL = True
 
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
 
 # CORS_ALLOWED_ORIGINS = []
