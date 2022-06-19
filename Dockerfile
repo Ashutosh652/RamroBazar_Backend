@@ -34,7 +34,7 @@ RUN adduser -u 99 myuser
 USER myuser
 
 
-CMD gunicorn hello_django.wsgi:application --bind 0.0.0.0:$PORT
+CMD gunicorn ramrobazar.wsgi:application --bind 0.0.0.0:$PORT
 
 # lint
 #RUN flake8 --ignore=E501,F401 .
