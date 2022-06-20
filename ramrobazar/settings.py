@@ -244,3 +244,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 # ALLOWED_HOSTS = ['*']
 
 # CORS_ALLOWED_ORIGINS = []
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://afternoon-thicket-97192.herokuapp.com',
+]
