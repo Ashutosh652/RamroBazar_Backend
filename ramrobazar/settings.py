@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'ramrobazar.drf.apps.DrfConfig',
     'ramrobazar.demo.apps.DemoConfig',
     'mptt',
-    'django_elasticsearch_dsl',
+    # 'django_elasticsearch_dsl',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
@@ -183,9 +183,9 @@ PHONENUMBER_DB_FORMAT = os.environ.get('PHONENUMBER_DB_FORMAT')
 PHONENUMBER_DEFAULT_REGION = os.environ.get('PHONENUMBER_DEFAULT_REGION')
 PHONENUMBER_DEFAULT_FORMAT = os.environ.get('PHONENUMBER_DEFAULT_FORMAT')
 
-ELASTICSEARCH_DSL = {
-    'default' : {'hosts': 'esearch:9200'},
-}
+# ELASTICSEARCH_DSL = {
+#     'default' : {'hosts': 'esearch:9200'},
+# }
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
