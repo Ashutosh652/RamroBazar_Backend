@@ -248,3 +248,5 @@ CORS_ORIGIN_ALLOW_ALL = True
 CSRF_TRUSTED_ORIGINS = [
     'https://afternoon-thicket-97192.herokuapp.com',
 ]
+
+BASE_URL = config('BASE_URL')

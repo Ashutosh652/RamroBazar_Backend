@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <title>Main</title>
+</head>
+
+<body>
+        <p>Root:<br><a
+                        href='http://afternoon-thicket-97192.herokuapp.com/api/'>http://afternoon-thicket-97192.herokuapp.com/api/</a>
+        </p>
+        <p>List of all products and services:<br><a
+                        href='http://afternoon-thicket-97192.herokuapp.com/api/productsandservices/'>http://afternoon-thicket-97192.herokuapp.com/api/productsandservices/</a>
+        </p>
+        <p>List of all categories:<br><a
+                        href='http://afternoon-thicket-97192.herokuapp.com/api/categories/'>http://afternoon-thicket-97192.herokuapp.com/api/categories/</a>
+        </p>
+        <p>User Register:<br><a
+                        href='http://afternoon-thicket-97192.herokuapp.com/api/user/register/'>http://afternoon-thicket-97192.herokuapp.com/api/user/register/</a>
+        </p>
+        <p>User Login - Obtain refresh and access tokens for user login:<br><a
+                        href='http://afternoon-thicket-97192.herokuapp.com/api/token/'>http://afternoon-thicket-97192.herokuapp.com/api/token/</a>
+        </p>
+        <p>User Login Refresh - Refresh the tokens after the access token is expired. Access token expires every 5
+                minutes.:<br><a
+                        href='http://afternoon-thicket-97192.herokuapp.com/api/token/refresh'>http://afternoon-thicket-97192.herokuapp.com/api/token/refresh</a>
+        </p>
+        <p>User Logout - Token is blacklisted when the user logs out.:<br><a
+                        href='http://afternoon-thicket-97192.herokuapp.com/api/user/logout/'>http://afternoon-thicket-97192.herokuapp.com/api/user/logout/</a>
+        </p>
+</body>
+
+</html>

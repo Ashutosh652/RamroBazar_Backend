@@ -39,7 +39,7 @@ class ProductOrService(models.Model):
     is_blocked = models.BooleanField(default=False, verbose_name=_("product/service blocked"), help_text=_("format: true->product is blocked"))
     created_at = models.DateTimeField(auto_now_add=True, editable=False, verbose_name=_("date product/service created"), help_text=_("format: Y-m-d H:M:S"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date product/service last updated"), help_text=_("format: Y-m-d H:M:S"))
-    is_product = models.BooleanField(default=True, verbose_name=_("Is this product?"), help_text=_("format: true->product, flase->service"))
+    is_product = models.BooleanField(default=True, verbose_name=_("Is this product?"), help_text=_("format: true->product, false->service"))
     # product = models.OneToOneField(Product, related_name='product', on_delete=models.CASCADE)
     # service = models.OneToOneField(Service, related_name='service', on_delete=models.CASCADE)
     users_wishlist = models.ManyToManyField(User, related_name='user_wishlist', blank=True)
@@ -51,7 +51,7 @@ class ProductOrService(models.Model):
 
 class Product(models.Model):
     brand = models.ForeignKey(Brand, related_name="brand_products", on_delete=models.PROTECT)
-    price = models.DecimalField(max_digits=7, decimal_places=2, verbose_name=_("Cost of Product"), help_text=_("format: max price = 99999.99"))
+    show_price = models.DecimalField(max_digits=7, decimal_places=2, verbose_name=_("Cost of Product shown on the site."), help_text=_("format: max price = 99999.99"))
     available_units = models.IntegerField(null=False, default=0, verbose_name=_("available units"))
     sold_units = models.IntegerField(null=False, default=0, verbose_name=_("sold units"))
     product_or_service = models.OneToOneField(ProductOrService, related_name='product', on_delete=models.CASCADE, null=True)
@@ -205,6 +205,7 @@ class SoldStatus(models.Model):
     product_or_service = models.ForeignKey(ProductOrService, related_name="sold_status", on_delete=models.PROTECT)
     buyer_status = models.BooleanField(default=False, verbose_name=_("bought by buyer"), help_text=_("format: default=false, true=buyer confirms buying"))
     seller_status = models.BooleanField(default=False, verbose_name=_("sold by seller"), help_text=_("format: default=false, true=seller confirms selling"))
+    sold_price = models.DecimalField(max_digits=7, decimal_places=2, verbose_name=_("Price at which the product or service was sold."), help_text=_("format: max price = 99999.99"))
     sold_units = models.IntegerField(null=False, default=0, blank=False, help_text=_("number of units/times sold to buyer"))
     date_sold = models.DateField(null=False, blank=False, verbose_name=_("date sold"), help_text=_("date when product/service was sold"))
 
