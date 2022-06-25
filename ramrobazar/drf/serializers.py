@@ -1,7 +1,7 @@
 # from pyexpat import model
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from ramrobazar.inventory.models import Category, Product, Brand, ProductOrService, Service
+from ramrobazar.inventory.models import Category, Product, Brand, ProductOrService, Service, Media
 from ramrobazar.account.models import User
 # from ramrobazar.settings import BASE_URL
 
@@ -36,13 +36,21 @@ class BrandSerializer(serializers.ModelSerializer):
         fields = ['name',]
 
 
+class MediaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Media
+        fields = ['product_or_service', 'image', 'alt_text', 'is_feature',]
+        read_only = True
+
+
 class ProductOrServiceSerializer(serializers.HyperlinkedModelSerializer):
-    detail = serializers.HyperlinkedIdentityField(
-        view_name='drf:productsandservices-detail', lookup_field='slug')
+    detail = serializers.HyperlinkedIdentityField(view_name='drf:productsandservices-detail', lookup_field='slug')
+    media = MediaSerializer(many=True, read_only=True)
 
     class Meta:
         model = ProductOrService
-        fields = ['name', 'detail', 'web_id', 'slug',
+        fields = ['name', 'detail', 'web_id', 'slug', 'media',
                   'is_visible', 'is_blocked', 'is_product', ]
         # exclude = ['id',]
         read_only = True
@@ -67,6 +75,7 @@ class ServiceSerializer(serializers.ModelSerializer):
         model = Service
         fields = '__all__'
         # lookup_field = 'slug'
+
 
 
 class ProductOrServiceDetailSerializer(serializers.ModelSerializer):
