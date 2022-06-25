@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from ramrobazar.inventory.models import Category, Product, Brand, ProductOrService, Service
 from ramrobazar.account.models import User
-from ramrobazar.settings import BASE_URL
+# from ramrobazar.settings import BASE_URL
 
 
 # ..........................Customizing Token Claims...................................................................
