@@ -40,7 +40,7 @@ class MediaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Media
-        fields = ['product_or_service', 'image', 'alt_text', 'is_feature',]
+        fields = ['image', 'alt_text', 'is_feature',]
         read_only = True
 
 
@@ -87,11 +87,12 @@ class ProductOrServiceDetailSerializer(serializers.ModelSerializer):
     product = ProductSerializer(many=False, read_only=True)
     service = ServiceSerializer(many=False, read_only=True)
     category = CategorySerializer(many=True, read_only=True)
+    media = MediaSerializer(many=True, read_only=True)
 
     class Meta:
         model = ProductOrService
         # exclude = ['id',]
-        fields = ['product', 'service', 'web_id', 'slug', 'name', 'description', 'is_visible', 'is_blocked', 'created_at', 'updated_at', 'is_product', 'seller', 'category', 'users_wishlist', 'reported_by',]
+        fields = ['product', 'service', 'web_id', 'slug', 'name', 'description', 'is_visible', 'is_blocked', 'created_at', 'updated_at', 'is_product', 'seller', 'category', 'media', 'users_wishlist', 'reported_by',]
         # if ProductOrService.is_product:
         #     fields = ['product', 'web_id', 'slug', 'name', 'description', 'is_visible', 'is_blocked', 'created_at', 'updated_at', 'is_product', 'seller', 'category', 'users_wishlist', 'reported_by',]
         # elif not ProductOrService.is_product:
