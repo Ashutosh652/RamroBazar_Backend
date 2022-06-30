@@ -129,7 +129,7 @@ class Service(models.Model):
 #Product Image Table
 class Media(models.Model):
     product_or_service = models.ForeignKey(ProductOrService, null=True, blank=True, related_name="media", on_delete=models.PROTECT)
-    image = models.ImageField(default='default_product.jpg', upload_to='products', null=False, blank=False, verbose_name=_("product image"), help_text=_("format: required, default-default_product.png"))
+    image = models.ImageField(default='default_product.jpg', upload_to='images', null=False, blank=False, verbose_name=_("product image"), help_text=_("format: required, default-default_product.png"))
     alt_text = models.CharField(max_length=255, verbose_name=_("alternative text"), help_text=_("format: required, max-255"))
     is_feature = models.BooleanField(default=False, verbose_name=_("default/main image"), help_text=_("format: default=false, true=default/main image"))
 
