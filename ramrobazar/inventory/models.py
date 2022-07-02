@@ -1,5 +1,8 @@
+from io import BytesIO
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.files.storage import default_storage as storage
+from django.core.files.base import ContentFile
 from mptt.models import MPTTModel, TreeForeignKey, TreeManyToManyField
 from PIL import Image
 from ramrobazar.account.models import User
@@ -129,7 +132,7 @@ class Service(models.Model):
 #Product Image Table
 class Media(models.Model):
     product_or_service = models.ForeignKey(ProductOrService, null=True, blank=True, related_name="media", on_delete=models.PROTECT)
-    image = models.ImageField(default='default_product.jpg', upload_to='images', null=False, blank=False, verbose_name=_("product image"), help_text=_("format: required, default-default_product.png"))
+    image = models.ImageField(default='default_product.jpg', upload_to='items', null=False, blank=False, verbose_name=_("product image"), help_text=_("format: required, default-default_product.png"))
     alt_text = models.CharField(max_length=255, verbose_name=_("alternative text"), help_text=_("format: required, max-255"))
     is_feature = models.BooleanField(default=False, verbose_name=_("default/main image"), help_text=_("format: default=false, true=default/main image"))
 
@@ -139,11 +142,16 @@ class Media(models.Model):
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        img = Image.open(self.image.path)
+        img_read = storage.open(self.image.name, "r")
+        img = Image.open(img_read)
+        img_buffer = BytesIO()
         if img.height > 500 or img.width > 500:
             output_size = (500, 500)
-            img.thumbnail(output_size)
-            img.save(self.image.path)
+            img.thumbnail(output_size, Image.ANTIALIAS)
+            img.save(img_buffer, img.format)
+            img.show()
+            self.image.save(self.image.name, ContentFile(img_buffer.getvalue()))
+        img_read.close()
     
     def __str__(self):
         if self.product_or_service:

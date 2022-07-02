@@ -10,11 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
-from ctypes import cast
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
 import dj_database_url
+import cloudinary_storage, cloudinary, cloudinary.api, cloudinary.uploader
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -36,6 +36,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'afternoon-thicket-97192.herokuapp.co
 # Application definition
 
 INSTALLED_APPS = [
+    # 'whitenoise.runserver_nostatic',
     'phonenumber_field',
     'ramrobazar.account.apps.AccountConfig',
     'ramrobazar.dashboard.apps.DashboardConfig',
@@ -54,7 +55,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'cloudinary_storage',
+    'cloudinary',
     'corsheaders',
 ]
 
@@ -63,7 +65,7 @@ MIDDLEWARE = [
     
     'django.middleware.security.SecurityMiddleware',
 
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    # 'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     
 
@@ -163,16 +165,27 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
+    os.path.join(BASE_DIR, 'static'),
+    # os.path.join(BASE_DIR, 'staticfiles'),
     ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
 # STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
-MEDIA_URL = 'images/'
+MEDIA_URL = 'media/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'static/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUD_NAME'),
+    'API_KEY': os.environ.get('API_KEY'),
+    'API_SECRET': os.environ.get('API_SECRET')
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field

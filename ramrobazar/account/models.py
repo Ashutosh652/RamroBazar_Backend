@@ -1,5 +1,8 @@
+from io import BytesIO
 from django.db import models
 from django.utils import timezone
+from django.core.files.storage import default_storage as storage
+from django.core.files.base import ContentFile
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from phonenumber_field.modelfields import PhoneNumberField
 from PIL import Image
@@ -58,13 +61,26 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'contact_number'
     REQUIRED_FIELDS = ['first_name', 'last_name',]
 
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
+    #     img = Image.open(self.profile_pic.path)
+    #     if img.height > 300 or img.width > 300:
+    #         output_size = (300, 300)
+    #         img.thumbnail(output_size)
+    #         img.save(self.profile_pic.path)
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        img = Image.open(self.profile_pic.path)
+        img_read = storage.open(self.profile_pic.name, "r")
+        img = Image.open(img_read)
+        img_buffer = BytesIO()
         if img.height > 300 or img.width > 300:
             output_size = (300, 300)
-            img.thumbnail(output_size)
-            img.save(self.profile_pic.path)
+            img.thumbnail(output_size, Image.ANTIALIAS)
+            img.save(img_buffer, img.format)
+            img.show()
+            self.profile_pic.save(self.profile_pic.name, ContentFile(img_buffer.getvalue()))
+        img_read.close()
 
     def __str__(self):
         return self.first_name
