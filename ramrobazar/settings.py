@@ -54,11 +54,11 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+
     'cloudinary_storage',
 
     'django.contrib.staticfiles',
 
-    
     'cloudinary',
     'corsheaders',
 ]
@@ -169,8 +169,6 @@ STATIC_URL = 'static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
-
 # STATICFILES_DIRS = [
 #     os.path.join(BASE_DIR, 'static'),
 #     # os.path.join(BASE_DIR, 'staticfiles'),
@@ -189,7 +187,7 @@ CLOUDINARY_STORAGE = {
     'API_KEY': os.environ.get('API_KEY'),
     'API_SECRET': os.environ.get('API_SECRET'),
 }
-
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Default primary key field type
