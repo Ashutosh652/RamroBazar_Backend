@@ -15,6 +15,7 @@ from datetime import timedelta
 from decouple import config
 import dj_database_url
 import cloudinary_storage, cloudinary, cloudinary.api, cloudinary.uploader
+# import gamma_cloudinary
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -58,8 +59,9 @@ INSTALLED_APPS = [
     'cloudinary_storage',
 
     'django.contrib.staticfiles',
-
+    
     'cloudinary',
+    # 'gamma_cloudinary',
     'corsheaders',
 ]
 
@@ -169,10 +171,11 @@ STATIC_URL = 'static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'static'),
-#     # os.path.join(BASE_DIR, 'staticfiles'),
-#     ]
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+    # os.path.join(BASE_DIR, 'staticfiles'),
+    ]
 
 # STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
