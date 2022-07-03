@@ -1,0 +1,19 @@
+---
+development:
+  cloud_name: db5bsjxia
+  api_key: '439869125671889'
+  api_secret: PPQsI197EPifRpGy3JPcp3r9XcE
+  enhance_image_tag: true
+  static_file_support: false
+production:
+  cloud_name: db5bsjxia
+  api_key: '439869125671889'
+  api_secret: PPQsI197EPifRpGy3JPcp3r9XcE
+  enhance_image_tag: true
+  static_file_support: true
+test:
+  cloud_name: db5bsjxia
+  api_key: '439869125671889'
+  api_secret: PPQsI197EPifRpGy3JPcp3r9XcE
+  enhance_image_tag: true
+  static_file_support: false
