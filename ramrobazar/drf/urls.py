@@ -9,7 +9,7 @@ from ramrobazar.drf import views
 app_name = 'drf'
 
 router = DefaultRouter()
-router.register(r'productsandservices', views.ProductsOrServicesList, basename='productsandservices')
+router.register(r'items', views.ItemList, basename='items')
 router.register(r'categories', views.CategoryList, basename='categories')
 router.register(r'user/register', views.UserRegister, basename='user-register')
 router.register(r'user/logout', views.BlackListToken, basename='user-logout')

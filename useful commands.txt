@@ -1,0 +1,2 @@
+To reset heroku database (postgresql-shallow-15971):
+	heroku pg:reset DATABASE_URL

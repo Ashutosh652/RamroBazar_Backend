@@ -63,16 +63,18 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        img_read = storage.open(self.profile_pic.name, "r")
-        img = Image.open(img_read)
-        img_buffer = BytesIO()
-        if img.height > 300 or img.width > 300:
-            output_size = (300, 300)
-            img.thumbnail(output_size, Image.ANTIALIAS)
-            img.save(img_buffer, img.format)
-            img.show()
-            self.profile_pic.save(self.profile_pic.name, ContentFile(img_buffer.getvalue()))
-        img_read.close()
+        if self.profile_pic:
+            if storage.exists(self.profile_pic.name):
+                img_read = storage.open(self.profile_pic.name, "r")
+                img = Image.open(img_read)
+                img_buffer = BytesIO()
+                if img.height > 300 or img.width > 300:
+                    output_size = (300, 300)
+                    img.thumbnail(output_size, Image.ANTIALIAS)
+                    img.save(img_buffer, img.format)
+                    img.show()
+                    self.profile_pic.save(self.profile_pic.name, ContentFile(img_buffer.getvalue()))
+                img_read.close()
 
     def __str__(self):
         return self.first_name

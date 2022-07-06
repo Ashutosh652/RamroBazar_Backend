@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     
     'cloudinary_storage',
     'cloudinary',
+    'django_filters',
+    # 'gamma_cloudinary',
     'corsheaders',
 ]
 

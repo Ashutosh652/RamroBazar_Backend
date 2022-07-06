@@ -6,28 +6,55 @@
 </head>
 
 <body>
-        <p>Root:<br><a
+        <p><strong>Root:</strong><br><a
                         href='http://afternoon-thicket-97192.herokuapp.com/api/'>http://afternoon-thicket-97192.herokuapp.com/api/</a>
-        </p>
-        <p>List of all products and services:<br><a
-                        href='http://afternoon-thicket-97192.herokuapp.com/api/productsandservices/'>http://afternoon-thicket-97192.herokuapp.com/api/productsandservices/</a>
-        </p>
-        <p>List of all categories:<br><a
+        </p><br>
+        <p><strong>List of all items:</strong><br><a
+                        href='http://afternoon-thicket-97192.herokuapp.com/api/items/'>http://afternoon-thicket-97192.herokuapp.com/api/items/</a>
+        </p><br>
+        <p><strong>List of all categories:</strong><br><a
                         href='http://afternoon-thicket-97192.herokuapp.com/api/categories/'>http://afternoon-thicket-97192.herokuapp.com/api/categories/</a>
-        </p>
-        <p>User Register:<br><a
+        </p><br>
+        <p><strong>Filter items by Category:</strong><br>
+                <p>Url format =
+                        http://afternoon-thicket-97192.herokuapp.com/api/items/?category__slug={category_slug}/<br>
+                        <p>Example: <a
+                                        href='http://afternoon-thicket-97192.herokuapp.com/api/items/?category__slug=technology/'>http://afternoon-thicket-97192.herokuapp.com/api/items/?category__slug=technology/</a>
+                        </p>
+                </p>
+        </p><br>
+        <p><strong>Filter items by Brand:</strong><br>
+                <p>Url format =
+                        http://afternoon-thicket-97192.herokuapp.com/api/items/?brand__name={brand_name}/<br>
+                        <p>Example: <a
+                                        href='http://afternoon-thicket-97192.herokuapp.com/api/items/?brand__name=Adidas/'>http://afternoon-thicket-97192.herokuapp.com/api/items/?category__slug=technology/</a>
+                        </p>
+                </p>
+        </p><br>
+        <p><strong>Search items by terms:</strong><br>
+                <p>Search results are shown based on terms in name of item, description of item, category name, brand
+                        name and location.</p>
+                <p>Url format =
+                        http://afternoon-thicket-97192.herokuapp.com/api/api/items/?search={search_term}/<br>
+                        <p>Example: <a
+                                        href='http://afternoon-thicket-97192.herokuapp.com/api/items/?search=pokhara/'>http://afternoon-thicket-97192.herokuapp.com/api/items/?search=pokhara/</a>
+                        </p>
+                </p>
+        </p><br>
+        <p><strong>User Register:</strong><br><a
                         href='http://afternoon-thicket-97192.herokuapp.com/api/user/register/'>http://afternoon-thicket-97192.herokuapp.com/api/user/register/</a>
-        </p>
-        <p>User Login - Obtain refresh and access tokens for user login:<br><a
+        </p><br>
+        <p><strong>User Login - Obtain refresh and access tokens for user login:</strong><br><a
                         href='http://afternoon-thicket-97192.herokuapp.com/api/token/'>http://afternoon-thicket-97192.herokuapp.com/api/token/</a>
-        </p>
-        <p>User Login Refresh - Refresh the tokens after the access token is expired. Access token expires every 5
-                minutes.:<br><a
+        </p><br>
+        <p><strong>User Login Refresh - Refresh the tokens after the access token is expired. Access token expires every
+                        5
+                        minutes.:</strong><br><a
                         href='http://afternoon-thicket-97192.herokuapp.com/api/token/refresh'>http://afternoon-thicket-97192.herokuapp.com/api/token/refresh</a>
-        </p>
-        <p>User Logout - Token is blacklisted when the user logs out.:<br><a
+        </p><br>
+        <p><strong>User Logout - Token is blacklisted when the user logs out.:</strong><br><a
                         href='http://afternoon-thicket-97192.herokuapp.com/api/user/logout/'>http://afternoon-thicket-97192.herokuapp.com/api/user/logout/</a>
-        </p>
+        </p><br>
 </body>
 
 </html>

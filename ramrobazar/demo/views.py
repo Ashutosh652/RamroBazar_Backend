@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from django.views import View
-from ramrobazar.inventory.models import ProductOrService, Media
+from ramrobazar.inventory.models import Item, Media
 
 
 class HomeView(View):
 	def get(self, request, *args, **kwargs):
-		products_and_services = ProductOrService.objects.all()
+		products_and_services = Item.objects.all()
 		media = Media.objects.all()
 		context = {
 		'products_and_services': products_and_services,
@@ -18,7 +18,7 @@ class HomeView(View):
 
 class DetailView(View):
 	def get(self, request, slug, *args, **kwargs):
-		product_or_service = ProductOrService.objects.get(slug=slug)
+		product_or_service = Item.objects.get(slug=slug)
 		context = {
 			'product_or_service': product_or_service,
 		}
