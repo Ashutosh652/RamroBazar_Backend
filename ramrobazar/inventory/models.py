@@ -11,7 +11,7 @@ from ramrobazar.account.models import User
 class Category(MPTTModel):
     name = models.CharField(max_length=100, null=False, blank=False, verbose_name=_("category name"), help_text=_("format: required, max_length=100"))
     slug = models.SlugField(max_length=150, null=False, blank=False, verbose_name=_("category url"), help_text=_("format: required, letters, numbers, underscore or hyphen"))
-    parent = TreeForeignKey("self", on_delete=models.PROTECT, related_name="children", null=True, blank=True, verbose_name=_("parent category"), help_text=_("format: not required"))
+    parent = TreeForeignKey("self", on_delete=models.SET_NULL, related_name="children", null=True, blank=True, verbose_name=_("parent category"), help_text=_("format: not required"))
 
     class MPTTMeta:
         order_insertion_by = ['name']
@@ -47,7 +47,7 @@ class Item(models.Model):
     # service = models.OneToOneField(Service, related_name='service', on_delete=models.CASCADE)
     users_wishlist = models.ManyToManyField(User, related_name='user_wishlist', blank=True)
     reported_by = models.ManyToManyField(User, related_name='reported_item', blank=True)
-    brand = models.ForeignKey(Brand, related_name="brand_products", on_delete=models.PROTECT)
+    brand = models.ForeignKey(Brand, related_name="brand_products", on_delete=models.SET_NULL, null=True, blank=True)
     show_price = models.DecimalField(max_digits=7, decimal_places=2, verbose_name=_("Cost of Product shown on the site."), help_text=_("format: max price = 99999.99"))
     sold_times = models.IntegerField(null=False, default=0, verbose_name=_("sold times"))
     location = models.TextField(null=True, blank=True, verbose_name=_("available locations"))
@@ -146,20 +146,21 @@ class Media(models.Model):
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        img_read = storage.open(self.image.name, "r")
-        img = Image.open(img_read)
-        img_buffer = BytesIO()
-        if img.height > 500 or img.width > 500:
-            output_size = (500, 500)
-            img.thumbnail(output_size, Image.ANTIALIAS)
-            img.save(img_buffer, img.format)
-            img.show()
-            self.image.save(self.image.name, ContentFile(img_buffer.getvalue()))
-        img_read.close()
+        if storage.exists(self.image.name):
+            img_read = storage.open(self.image.name, "r")
+            img = Image.open(img_read)
+            img_buffer = BytesIO()
+            if img.height > 500 or img.width > 500:
+                output_size = (500, 500)
+                img.thumbnail(output_size, Image.ANTIALIAS)
+                img.save(img_buffer, img.format)
+                img.show()
+                self.image.save(self.image.name, ContentFile(img_buffer.getvalue()))
+            img_read.close()
     
     def __str__(self):
         if self.image:
-            return self.image.name
+            return self.item.name
         else:
             return 'No product or service associated with this image was found'
 
@@ -215,12 +216,12 @@ class Media(models.Model):
 class SoldStatus(models.Model):
     is_sold = models.BooleanField(default=False, verbose_name=_("is the item sold?"), help_text=_("format: default=false, true=item is sold"))
     buyer = models.ForeignKey(User, related_name="+", on_delete=models.SET_NULL, null=True)
-    item = models.ForeignKey(Item, related_name="sold_status", on_delete=models.CASCADE)
+    item = models.OneToOneField(Item, related_name="sold_status", on_delete=models.CASCADE)
     buyer_status = models.BooleanField(default=False, verbose_name=_("bought by buyer"), help_text=_("format: default=false, true=buyer confirms buying"))
     seller_status = models.BooleanField(default=False, verbose_name=_("sold by seller"), help_text=_("format: default=false, true=seller confirms selling"))
-    sold_price = models.DecimalField(max_digits=7, decimal_places=2, verbose_name=_("Price at which the item was sold."), help_text=_("format: max price = 99999.99"))
-    sold_units = models.IntegerField(null=False, default=0, blank=False, help_text=_("number of units/times sold to buyer"))
-    date_sold = models.DateField(null=False, blank=False, verbose_name=_("date sold"), help_text=_("date when item was sold"))
+    sold_price = models.DecimalField(max_digits=7, decimal_places=2, verbose_name=_("Price at which the item was sold."), help_text=_("format: max price = 99999.99"), null=True)
+    sold_units = models.IntegerField(default=0, blank=False, help_text=_("number of units/times sold to buyer"), null=True)
+    date_sold = models.DateField(blank=False, verbose_name=_("date sold"), help_text=_("date when item was sold"), null=True)
 
     def __str__(self):
         return f"{self.item.name}: Buyer Status: {self.buyer_status} : Seller Status: {self.seller_status}"

@@ -6,6 +6,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.filters import SearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from ramrobazar.inventory.models import Category, Item
 from ramrobazar.drf.serializers import RegisterUserSerializer, MyTokenObtainPairSerializer, ItemSerializer, ItemDetailSerializer, CategorySerializer
 
@@ -33,6 +35,9 @@ class ItemList(viewsets.GenericViewSet, mixins.ListModelMixin):
     serializer_action_classes = {'retrieve': ItemDetailSerializer, }
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = 'slug'
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ['category__slug', 'brand__name',]
+    search_fields = ['name', 'description', 'category__name', 'brand__name', 'location']
 
     def get_serializer_class(self):
         try:

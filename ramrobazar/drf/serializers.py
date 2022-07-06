@@ -91,7 +91,7 @@ class ItemDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         # exclude = ['id',]
-        fields = ['web_id', 'slug', 'name', 'description', 'brand', 'show_price', 'sold_times', 'location', 'is_visible', 'is_blocked', 'created_at', 'updated_at', 'is_product', 'seller', 'category', 'media', 'users_wishlist', 'reported_by',]
+        fields = ['web_id', 'slug', 'name', 'description', 'brand', 'show_price', 'sold_times', 'location', 'is_visible', 'is_blocked', 'created_at', 'updated_at', 'seller', 'category', 'media', 'users_wishlist', 'reported_by',]
         # if ProductOrService.is_product:
         #     fields = ['product', 'web_id', 'slug', 'name', 'description', 'is_visible', 'is_blocked', 'created_at', 'updated_at', 'is_product', 'seller', 'category', 'users_wishlist', 'reported_by',]
         # elif not ProductOrService.is_product:
