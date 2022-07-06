@@ -6,8 +6,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from ramrobazar.inventory.models import Category, ProductOrService
-from ramrobazar.drf.serializers import RegisterUserSerializer, MyTokenObtainPairSerializer, ProductOrServiceSerializer, ProductOrServiceDetailSerializer, CategorySerializer
+from ramrobazar.inventory.models import Category, Item
+from ramrobazar.drf.serializers import RegisterUserSerializer, MyTokenObtainPairSerializer, ItemSerializer, ItemDetailSerializer, CategorySerializer
 
 
 # ..........................Customizing Token Claims...................................................................
@@ -27,10 +27,10 @@ class CategoryList(viewsets.GenericViewSet, mixins.ListModelMixin):
     permission_classes = [AllowAny]
 
 
-class ProductsOrServicesList(viewsets.GenericViewSet, mixins.ListModelMixin):
-    queryset = ProductOrService.objects.all()
-    serializer_class = ProductOrServiceSerializer
-    serializer_action_classes = {'retrieve': ProductOrServiceDetailSerializer, }
+class ItemList(viewsets.GenericViewSet, mixins.ListModelMixin):
+    queryset = Item.objects.all()
+    serializer_class = ItemSerializer
+    serializer_action_classes = {'retrieve': ItemDetailSerializer, }
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = 'slug'
 
