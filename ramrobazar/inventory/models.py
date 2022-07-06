@@ -43,8 +43,6 @@ class ProductOrService(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False, verbose_name=_("date product/service created"), help_text=_("format: Y-m-d H:M:S"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date product/service last updated"), help_text=_("format: Y-m-d H:M:S"))
     is_product = models.BooleanField(default=True, verbose_name=_("Is this product?"), help_text=_("format: true->product, false->service"))
-    # product = models.OneToOneField(Product, related_name='product', on_delete=models.CASCADE)
-    # service = models.OneToOneField(Service, related_name='service', on_delete=models.CASCADE)
     users_wishlist = models.ManyToManyField(User, related_name='user_wishlist', blank=True)
     reported_by = models.ManyToManyField(User, related_name='reported_product', blank=True)
 
@@ -78,57 +76,6 @@ class Service(models.Model):
         return self.product_or_service.name
 
 
-# class ProductType(models.Model):
-#     name = models.CharField(max_length=100, unique=True, verbose_name=_("type of product"), help_text=_("format: required, unique, max-100"))
-
-#     def __str__(self):
-#         return self.name
-
-
-# class ProductAttributeValue(models.Model):
-#     pass
-
-
-# class ProductAttribute(models.Model):
-#     name = models.CharField(max_length=100, unique=True, verbose_name=_("product attribute title"), help_text=_("format: required, unique, max-100"))
-#     description = models.TextField(verbose_name=_("product attribute description"), help_text=_("format: required"))
-
-#     def __str__(self):
-#         return self.name
-
-
-# class ProductAttributeValue(models.Model):
-#     product_attribute = models.ForeignKey(ProductAttribute, related_name="product_attribute", on_delete=models.PROTECT)
-#     attribute_value = models.CharField(max_length=100, verbose_name=_("attribute value"), help_text=_("format: required, max-100"))
-
-#     def __str__(self):
-#         return f"{self.product_attribute.name} : {self.attribute_value}"
-
-
-# class ProductInventory(models.Model):
-#     product_type = models.ForeignKey(ProductType, related_name="product_type", on_delete=models.PROTECT)
-#     product = models.ForeignKey(Product, related_name="product", on_delete=models.PROTECT)
-#     brand = models.ForeignKey(Brand, related_name="brand", on_delete=models.PROTECT)
-#     attribute_value = models.ManyToManyField(ProductAttributeValue, related_name="product_attribute_values")
-#     sold = models.BooleanField(default=False, verbose_name=_("product sold"), help_text=_("format: default=false, true=product is sold"))
-#     # attribute_values = models.ManyToManyField(ProductAttributeValue, related_name="product_attribute_values", through="ProductAttributeValues")
-#     is_visible = models.BooleanField(default=True, verbose_name=_("product visibility"), help_text=_("format: true->product is visiible"))
-#     price = models.DecimalField(max_digits=7, decimal_places=2, verbose_name=_("Cost of Product"), help_text=_("format: max price = 99999.99"))
-#     error_messages = {
-#         "name": { "max_length" : _("the price must be between 0 and 99999.99") }
-#     }
-#     weight = models.FloatField(verbose_name=_("product weight"), help_text=_("format: in grams"))
-#     created_at = models.DateTimeField(auto_now_add=True, editable=False, verbose_name=_("date subproduct created"), help_text=_("format: Y-m-d H:M:S"))
-#     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date subproduct last updated"), help_text=_("format: Y-m-d H:M:S"))
-
-#     class Meta:
-#         verbose_name = _('product inventory')
-#         verbose_name_plural = _('product inventory')
-
-#     def __str__(self):
-#         return self.product.name
-
-
 #Product Image Table
 class Media(models.Model):
     product_or_service = models.ForeignKey(ProductOrService, null=True, blank=True, related_name="media", on_delete=models.PROTECT)
@@ -140,6 +87,7 @@ class Media(models.Model):
         verbose_name = _("image")
         verbose_name_plural = _("images")
     
+    #Adjust the size of image uploaded to 500*500 pixels if it is greater than that before uploading to cloudinary
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         img_read = storage.open(self.image.name, "r")
@@ -160,54 +108,6 @@ class Media(models.Model):
             return 'No product or service associated with this image was found'
 
 
-# class Stock(models.Model):
-#     product_inventory = models.OneToOneField(ProductInventory, related_name="product_inventory", on_delete=models.PROTECT)
-#     available_units = models.IntegerField(default=0, verbose_name=_("units/qty of stock"), help_text=_("format: required, default-0"))
-#     sold_units =  models.IntegerField(default=0, verbose_name=_("units sold"), help_text=_("format: required, default-0"))
-
-#     def __str__(self):
-#         return self.product_inventory.product.name
-
-
-# class SoldStatusConnection(models.Model):
-#     buyer = models.ForeignKey(User, related_name="+", on_delete=models.CASCADE)
-#     seller = models.ForeignKey(User, related_name="+", on_delete=models.CASCADE)
-
-
-# class ProductSoldStatus(models.Model):
-#     buyer = models.ForeignKey(User, related_name="+", on_delete=models.PROTECT)
-#     # seller = models.ForeignKey(User, related_name="+", on_delete=models.PROTECT)
-#     # connection = models.ForeignKey(SoldStatusConnection, on_delete=models.CASCADE)
-#     product = models.ForeignKey(Product, related_name="sold_status", on_delete=models.PROTECT)
-#     buyer_status = models.BooleanField(default=False, verbose_name=_("bought by buyer"), help_text=_("format: default=false, true=buyer confirms buying"))
-#     seller_status = models.BooleanField(default=False, verbose_name=_("sold by seller"), help_text=_("format: default=false, true=seller confirms selling"))
-#     sold_units = models.IntegerField(null=False, default=0, blank=False, help_text=_("number of units sold to buyer"))
-
-#     def __str__(self):
-#         return f"{self.product.name}: Buyer Status: {self.buyer_status} : Seller Status: {self.seller_status}"
-    
-#     class Meta:
-#         verbose_name = _('product sold status')
-#         verbose_name_plural = _('product sold status')
-
-
-# class ServiceSoldStatus(models.Model):
-#     buyer = models.ForeignKey(User, related_name="+", on_delete=models.PROTECT)
-#     # seller = models.ForeignKey(User, related_name="+", on_delete=models.PROTECT)
-#     # connection = models.ForeignKey(SoldStatusConnection, on_delete=models.CASCADE)
-#     service = models.ForeignKey(Service, related_name="sold_status", on_delete=models.PROTECT)
-#     buyer_status = models.BooleanField(default=False, verbose_name=_("bought by buyer"), help_text=_("format: default=false, true=buyer confirms buying"))
-#     seller_status = models.BooleanField(default=False, verbose_name=_("sold by seller"), help_text=_("format: default=false, true=seller confirms selling"))
-#     no_sold_times = models.IntegerField(null=False, default=0, blank=False, help_text=_("number of times buyer bought the service"))
-
-#     def __str__(self):
-#         return f"{self.service.name}: Buyer Status: {self.buyer_status} : Seller Status: {self.seller_status}"
-    
-#     class Meta:
-#         verbose_name = _('service sold status')
-#         verbose_name_plural = _('service sold status')
-
-
 class SoldStatus(models.Model):
     buyer = models.ForeignKey(User, related_name="+", on_delete=models.PROTECT)
     product_or_service = models.ForeignKey(ProductOrService, related_name="sold_status", on_delete=models.PROTECT)
@@ -226,15 +126,14 @@ class Comment(MPTTModel):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     date_commented = models.DateTimeField(auto_now_add=True, editable=False, verbose_name=_("date commented"))
-	# likes = models.ManyToManyField(User, blank=True, related_name='comment_likes')
-	# dislikes = models.ManyToManyField(User, blank=True, related_name='comment_dislikes')
-    # parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     parent = TreeForeignKey("self", on_delete=models.PROTECT, related_name="comment_children", null=True, blank=True, verbose_name=_("parent comment"), help_text=_("format: not required"))
 
+    #returns all the children of a comment
     @property
     def children(self):
         return Comment.objects.filter(parent=self).order_by('-date_commented').all()
 
+    #returns True if a comment has no parent i.e. the coment is the parent
     @property
     def is_parent(self):
         if self.parent is None:
@@ -246,13 +145,3 @@ class Comment(MPTTModel):
 
     def __str__(self):
         return 'Comment "{}" by "{}"'.format(self.content, self.author)
-
-
-# class WishList(models.Model):
-#     product = models.ManyToManyField(Product, null=True, blank=True, related_name='+')
-#     service = models.ManyToManyField(Service, null=True, blank=True, related_name='+')
-#     # user = models.ForeignKey(User, blank=True, null=False, on_delete=models.CASCADE, related_name='want_to_buy')
-#     date_added = models.DateField()
-
-#     # def __str__(self):
-#     #     return f'Want to buy of {self.user}'

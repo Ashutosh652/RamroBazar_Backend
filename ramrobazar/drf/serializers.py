@@ -1,9 +1,7 @@
-# from pyexpat import model
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from ramrobazar.inventory.models import Category, Product, Brand, ProductOrService, Service, Media
 from ramrobazar.account.models import User
-# from ramrobazar.settings import BASE_URL
 
 
 # ..........................Customizing Token Claims...................................................................
@@ -79,11 +77,6 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 
 class ProductOrServiceDetailSerializer(serializers.ModelSerializer):
-    
-    # if ProductOrService.is_product:
-    #     product = ProductSerializer(many=False, read_only=True)
-    # elif not ProductOrService.is_product:
-    #     service = ServiceSerializer(many=False, read_only=True)
     product = ProductSerializer(many=False, read_only=True)
     service = ServiceSerializer(many=False, read_only=True)
     category = CategorySerializer(many=True, read_only=True)
@@ -93,10 +86,6 @@ class ProductOrServiceDetailSerializer(serializers.ModelSerializer):
         model = ProductOrService
         # exclude = ['id',]
         fields = ['product', 'service', 'web_id', 'slug', 'name', 'description', 'is_visible', 'is_blocked', 'created_at', 'updated_at', 'is_product', 'seller', 'category', 'media', 'users_wishlist', 'reported_by',]
-        # if ProductOrService.is_product:
-        #     fields = ['product', 'web_id', 'slug', 'name', 'description', 'is_visible', 'is_blocked', 'created_at', 'updated_at', 'is_product', 'seller', 'category', 'users_wishlist', 'reported_by',]
-        # elif not ProductOrService.is_product:
-        #     fields = ['service', 'web_id', 'slug', 'name', 'description', 'is_visible', 'is_blocked', 'created_at', 'updated_at', 'is_product', 'seller', 'category', 'users_wishlist', 'reported_by',]
         read_only = True
         editable = False
         lookup_field = 'slug'

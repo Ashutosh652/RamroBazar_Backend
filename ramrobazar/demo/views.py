@@ -15,22 +15,6 @@ class HomeView(View):
 		}
 		return render(request, 'demo/home.django-html', context)
 
-	# def post(self, request, *args, **kwargs):
-	# 	logged_in_user = request.user
-	# 	posts = Post.objects.filter(
-	# 		author__profile__followers__in = [logged_in_user.id]
-	# 		)
-	# 	form = PostForm(request.POST, request.FILES)
-	# 	if form.is_valid():
-	# 		new_post = form.save(commit=False)
-	# 		new_post.author = request.user
-	# 		new_post.save()
-
-	# 	context = {
-	# 	'posts':posts,
-	# 	'form': form
-	# 	}
-	# 	return render(request, 'healthpoint/home.html', context)
 
 class DetailView(View):
 	def get(self, request, slug, *args, **kwargs):

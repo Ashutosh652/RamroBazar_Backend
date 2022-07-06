@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     
     'cloudinary_storage',
     'cloudinary',
-    # 'gamma_cloudinary',
     'corsheaders',
 ]
 
@@ -108,25 +107,9 @@ DATABASES = {
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': config('ENGINE'),
-#         'NAME': config('POSTGRES_DB'),
-#         'USER': config('POSTGRES_USER'),
-#         'PASSWORD': '',
-#         'HOST': config('HOST'),
-#         'PORT': config('PORT'),
-#     }
-# }
-
-# DATABASE_URL = config('DATABASE_URL').replace("\'", "")
 DATABASE_URL = os.environ.get('DATABASE_URL')
 db_from_env = dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=False)
 DATABASES['default'].update(db_from_env)
-# DATABASES = {
-#     'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
-# }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -168,12 +151,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
-    # os.path.join(BASE_DIR, 'staticfiles'),
     ]
 
 # STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-# STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 
@@ -184,7 +164,7 @@ CLOUDINARY_STORAGE = {
     'API_KEY': os.environ.get('API_KEY'),
     'API_SECRET': os.environ.get('API_SECRET'),
 }
-# STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
+
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Default primary key field type
@@ -198,10 +178,6 @@ AUTH_USER_MODEL = 'account.User'
 PHONENUMBER_DB_FORMAT = os.environ.get('PHONENUMBER_DB_FORMAT')
 PHONENUMBER_DEFAULT_REGION = os.environ.get('PHONENUMBER_DEFAULT_REGION')
 PHONENUMBER_DEFAULT_FORMAT = os.environ.get('PHONENUMBER_DEFAULT_FORMAT')
-
-# ELASTICSEARCH_DSL = {
-#     'default' : {'hosts': 'esearch:9200'},
-# }
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
@@ -254,15 +230,10 @@ SIMPLE_JWT = {
 #     "http://localhost:3000",
 # ]
 
-# CORS_ALLOW_ALL_ORIGINS: True
 CORS_ORIGIN_ALLOW_ALL = True
 
 # ALLOWED_HOSTS = ['*']
 
-# CORS_ALLOWED_ORIGINS = []
-
 CSRF_TRUSTED_ORIGINS = [
     'https://afternoon-thicket-97192.herokuapp.com',
 ]
-
-# BASE_URL = config('BASE_URL')

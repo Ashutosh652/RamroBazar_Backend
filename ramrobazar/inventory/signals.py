@@ -3,7 +3,6 @@ from django.dispatch import receiver
 from .models import ProductOrService, Product, Service, Brand
 
 
-# if ProductOrService.is_product:
 @receiver(post_save, sender=ProductOrService)
 def create_product_or_service(sender, instance, created, **kwargs):
     if created:
@@ -18,13 +17,3 @@ def save_product_or_service(sender, instance, **kwargs):
         instance.product.save()
     if not instance.is_product:
         instance.service.save()
-
-# if not ProductOrService.is_product:
-# @receiver(post_save, sender=ProductOrService)
-# def create_service(sender, instance, created, **kwargs):
-#     if created:
-#         Service.objects.create(product_or_service=instance)
-
-# @receiver(post_save, sender=ProductOrService)
-# def save_service(sender, instance, **kwargs):
-#     instance.service.save()
