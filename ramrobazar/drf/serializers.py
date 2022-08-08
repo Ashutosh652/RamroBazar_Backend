@@ -6,6 +6,8 @@ from ramrobazar.account.models import User
 
 """..........................Customizing Token Claims..................................................................."""
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Overriding the default token serializer class so that the token contains additional information."""
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
