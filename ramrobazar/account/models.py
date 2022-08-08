@@ -53,8 +53,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     address = models.CharField(max_length=200, null=True, blank=True)
     profile_pic = models.ImageField(default='default_profile.jpg', upload_to='profile_pics', null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
-    no_sold_products = models.IntegerField(null=False, default=0, blank=True) #represents the total number of products sold by the user
-    no_sold_services = models.IntegerField(null=False, default=0, blank=True) #represents the total number of services sold by the user
+    no_sold_items = models.IntegerField(null=False, default=0, blank=True) #represents the total number of items sold by the user
 
     objects = AccountManager()
 

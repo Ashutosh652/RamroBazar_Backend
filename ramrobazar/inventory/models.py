@@ -42,9 +42,6 @@ class Item(models.Model):
     is_blocked = models.BooleanField(default=False, verbose_name=_("item blocked"), help_text=_("format: true->product is blocked"))
     created_at = models.DateTimeField(auto_now_add=True, editable=False, verbose_name=_("date item was created"), help_text=_("format: Y-m-d H:M:S"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date item was last updated"), help_text=_("format: Y-m-d H:M:S"))
-    # is_product = models.BooleanField(default=True, verbose_name=_("Is this product?"), help_text=_("format: true->product, false->service"))
-    # product = models.OneToOneField(Product, related_name='product', on_delete=models.CASCADE)
-    # service = models.OneToOneField(Service, related_name='service', on_delete=models.CASCADE)
     users_wishlist = models.ManyToManyField(User, related_name='user_wishlist', blank=True)
     reported_by = models.ManyToManyField(User, related_name='reported_item', blank=True)
     brand = models.ForeignKey(Brand, related_name="brand_products", on_delete=models.SET_NULL, null=True, blank=True)
@@ -56,34 +53,9 @@ class Item(models.Model):
         return self.name
 
 
-# class Product(models.Model):
-#     brand = models.ForeignKey(Brand, related_name="brand_products", on_delete=models.PROTECT)
-#     show_price = models.DecimalField(max_digits=7, decimal_places=2, verbose_name=_("Cost of Product shown on the site."), help_text=_("format: max price = 99999.99"))
-#     available_units = models.IntegerField(null=False, default=0, verbose_name=_("available units"))
-#     sold_units = models.IntegerField(null=False, default=0, verbose_name=_("sold units"))
-#     product_or_service = models.OneToOneField(ProductOrService, related_name='product', on_delete=models.CASCADE, null=True)
-
-#     def __str__(self):
-#         return self.product_or_service.name
-
-
-# class Service(models.Model):
-#     price_min = models.DecimalField(null=True, blank=True, max_digits=7, decimal_places=2, verbose_name=_("Minimum Cost of Service"), help_text=_("format: max price = 99999.99"))
-#     price_max = models.DecimalField(null=True, blank=True, max_digits=7, decimal_places=2, verbose_name=_("Maximum Cost of Service"), help_text=_("format: max price = 99999.99"))
-#     no_sold_times = models.IntegerField(null=False, default=0, verbose_name=_("No. of times service is sold"))
-#     available_date_start = models.DateField(null=True, blank=True, verbose_name=_("service start date"), help_text=_("date when service starts. can be null."))
-#     available_date_end = models.DateField(null=True, blank=True, verbose_name=_("service end date"), help_text=_("date when service ends. can be null."))
-#     available_time_start = models.TimeField(null=True, blank=True, verbose_name=_("service start time"), help_text=_("time when service starts. can be null."))
-#     available_time_end = models.TimeField(null=True, blank=True, verbose_name=_("service end time"), help_text=_("time when service ends. can be null."))
-#     location = models.TextField(null=True, blank=True, verbose_name=_("available locations"))
-#     product_or_service = models.OneToOneField(ProductOrService, related_name='service', on_delete=models.CASCADE, null=True)
-
-#     def __str__(self):
-#         return self.product_or_service.name
-
-
-#Product Image Table
 class Media(models.Model):
+    """Model representing images of items."""
+
     item = models.ForeignKey(Item, null=True, blank=True, related_name="media", on_delete=models.PROTECT)
     image = models.ImageField(default='default_item.jpg', upload_to='items', null=False, blank=False, verbose_name=_("item image"), help_text=_("format: required, default-default_product.png"))
     alt_text = models.CharField(max_length=255, verbose_name=_("alternative text"), help_text=_("format: required, max-255"))
@@ -93,8 +65,9 @@ class Media(models.Model):
         verbose_name = _("image")
         verbose_name_plural = _("images")
     
-    #Adjust the size of image uploaded to 500*500 pixels if it is greater than that before uploading to cloudinary
     def save(self, *args, **kwargs):
+        """Adjust the size of image uploaded to 500*500 pixels if it is greater than that before uploading to cloudinary"""
+        
         super().save(*args, **kwargs)
         if storage.exists(self.image.name):
             img_read = storage.open(self.image.name, "r")
@@ -116,6 +89,8 @@ class Media(models.Model):
 
 
 class SoldStatus(models.Model):
+    """Model representing the sold status of an item."""
+
     is_sold = models.BooleanField(default=False, verbose_name=_("is the item sold?"), help_text=_("format: default=false, true=item is sold"))
     buyer = models.ForeignKey(User, related_name="+", on_delete=models.SET_NULL, null=True)
     item = models.OneToOneField(Item, related_name="sold_status", on_delete=models.CASCADE)
@@ -126,7 +101,7 @@ class SoldStatus(models.Model):
     date_sold = models.DateField(blank=False, verbose_name=_("date sold"), help_text=_("date when item was sold"), null=True)
 
     def __str__(self):
-        return f"{self.item.name}: Buyer Status: {self.buyer_status} : Seller Status: {self.seller_status}"
+        return f"{self.item.name}: Sold: {self.is_sold}"
 
 
 class Comment(MPTTModel):
@@ -136,14 +111,14 @@ class Comment(MPTTModel):
     date_commented = models.DateTimeField(auto_now_add=True, editable=False, verbose_name=_("date commented"))
     parent = TreeForeignKey("self", on_delete=models.PROTECT, related_name="comment_children", null=True, blank=True, verbose_name=_("parent comment"), help_text=_("format: not required"))
 
-    #returns all the children of a comment
     @property
     def children(self):
+        """returns all the children of a comment"""
         return Comment.objects.filter(parent=self).order_by('-date_commented').all()
 
-    #returns True if a comment has no parent i.e. the coment is the parent
     @property
     def is_parent(self):
+        """returns True if a comment has no parent i.e. the coment is the parent"""
         if self.parent is None:
             return True
         return False

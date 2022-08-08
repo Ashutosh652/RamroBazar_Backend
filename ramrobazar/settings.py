@@ -15,7 +15,6 @@ from datetime import timedelta
 from decouple import config
 import dj_database_url
 import cloudinary_storage, cloudinary, cloudinary.api, cloudinary.uploader
-# import gamma_cloudinary
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -45,7 +44,6 @@ INSTALLED_APPS = [
     'ramrobazar.drf.apps.DrfConfig',
     'ramrobazar.demo.apps.DemoConfig',
     'mptt',
-    # 'django_elasticsearch_dsl',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
@@ -60,7 +58,6 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'cloudinary',
     'django_filters',
-    # 'gamma_cloudinary',
     'corsheaders',
 ]
 
@@ -154,8 +151,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     ]
-
-# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = '/media/'
 

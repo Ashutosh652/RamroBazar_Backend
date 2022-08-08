@@ -13,6 +13,9 @@ router.register(r'items', views.ItemList, basename='items')
 router.register(r'categories', views.CategoryList, basename='categories')
 router.register(r'user/register', views.UserRegister, basename='user-register')
 router.register(r'user/logout', views.BlackListToken, basename='user-logout')
+router.register(r'users', views.UserList, basename='users')
+router.register(r'user/update', views.UserUpdate, basename='user-update')
+router.register(r'user/update-password', views.UserPasswordUpdate, basename='user-update-password')
 
 urlpatterns = [
     path('', include(router.urls)),

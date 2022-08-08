@@ -1,39 +1,47 @@
 from django.shortcuts import render
 from django.views import View
-from rest_framework import viewsets, permissions, mixins, status
-# from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework import viewsets, mixins, status
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from ramrobazar.account.models import User
 from ramrobazar.inventory.models import Category, Item
-from ramrobazar.drf.serializers import RegisterUserSerializer, MyTokenObtainPairSerializer, ItemSerializer, ItemDetailSerializer, CategorySerializer
+from ramrobazar.drf.serializers import RegisterUserSerializer, MyTokenObtainPairSerializer, ItemSerializer, ItemDetailSerializer, CategorySerializer, UserSerializer, UserDetailSerializer, UserUpdateSerializer, ChangePasswordSerializer
+from ramrobazar.drf.permissions import CustomProfileUpdatePermission
 
 
-# ..........................Customizing Token Claims...................................................................
+"""..........................Customizing Token Claims..................................................................."""
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
-# ..........................Customizing Token Claims End...................................................................
+"""..........................Customizing Token Claims End..................................................................."""
 
 
 class MainView(View):
+    """View for listing the endpoints."""
+
     def get(self, request, *args, **kwargs):
         return render(request, 'drf/main.django-html')
 
 
 class CategoryList(viewsets.GenericViewSet, mixins.ListModelMixin):
+    """View for listing all categories."""
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
 
 
 class ItemList(viewsets.GenericViewSet, mixins.ListModelMixin):
+    """View for listing and retrieving all items."""
+
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
     serializer_action_classes = {'retrieve': ItemDetailSerializer, }
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     lookup_field = 'slug'
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ['category__slug', 'brand__name',]
@@ -52,6 +60,8 @@ class ItemList(viewsets.GenericViewSet, mixins.ListModelMixin):
 
 
 class UserRegister(viewsets.GenericViewSet, mixins.CreateModelMixin):
+    """View for registering/creating new users."""
+
     serializer_class = RegisterUserSerializer
     permission_classes = [AllowAny]
 
@@ -65,8 +75,54 @@ class UserRegister(viewsets.GenericViewSet, mixins.CreateModelMixin):
         serializer.save()
 
 
+class UserList(viewsets.GenericViewSet, mixins.ListModelMixin):
+    """View for listing and retrieving all users."""
+
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    serializer_action_classes = {'retrieve': UserDetailSerializer, }
+    lookup_field = 'id'
+    filter_backends = [SearchFilter]
+    search_fields = ['first_name', 'last_name', 'address', 'email']
+
+    def get_queryset(self):
+        return User.objects.exclude(is_superuser=True).exclude(is_staff=True)
+    
+    def get_serializer_class(self):
+        try:
+            return self.serializer_action_classes[self.action]
+        except:
+            return self.serializer_class
+    
+    def retrieve(self, request, id=None):
+        user = self.get_object()
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
+
+
+class UserUpdate(viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.RetrieveModelMixin):
+    """View for updating user information."""
+
+    serializer_class = UserUpdateSerializer
+    queryset = User.objects.all()
+    permission_classes = [CustomProfileUpdatePermission,]
+    authentication_classes = [JWTAuthentication]
+    lookup_field = 'id'
+
+
+class UserPasswordUpdate(viewsets.GenericViewSet, mixins.UpdateModelMixin):
+    """View for updating user password."""
+
+    queryset = User.objects.all()
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [CustomProfileUpdatePermission]
+    authentication_classes = [JWTAuthentication]
+    lookup_field = 'id'
+
+
 class BlackListToken(viewsets.GenericViewSet, mixins.CreateModelMixin):
-    # serializer_class =
+    """View for blacklisting unnecessary tokens."""
+    
     permission_classes = [AllowAny]
 
     def create(self, request):

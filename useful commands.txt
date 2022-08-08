@@ -1,2 +1,9 @@
 To reset heroku database (postgresql-shallow-15971):
 	heroku pg:reset DATABASE_URL
+
+Docker management commands format:
+	docker-compose run --rm web python manage.py makemigrations
+
+Docker Postgres Clear All Data:
+	docker-compose down --volumes   OR   docker-compose down --rmi all --volumes
+	docker rm -f -v postgres_container_name
