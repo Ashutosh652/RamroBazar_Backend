@@ -32,7 +32,7 @@ class Brand(models.Model):
 
 
 class Item(models.Model):
-    web_id = models.CharField(max_length=50, unique=True, verbose_name=_("item web id"), help_text=_("format: required, unique"))
+    # web_id = models.CharField(max_length=50, unique=True, verbose_name=_("item web id"), help_text=_("format: required, unique"))
     slug = models.SlugField(max_length=255, null=False, blank=False, verbose_name=_("item url"), help_text=_("format: required, letters, numbers, underscore or hyphen"))
     name = models.CharField(max_length=250, null=False, blank=False, verbose_name=_("item name"), help_text=_("format: required, max_length=250"))
     seller = models.ForeignKey(User, related_name="item", on_delete=models.CASCADE)
@@ -114,11 +114,13 @@ class Comment(MPTTModel):
     @property
     def children(self):
         """returns all the children of a comment"""
+
         return Comment.objects.filter(parent=self).order_by('-date_commented').all()
 
     @property
     def is_parent(self):
         """returns True if a comment has no parent i.e. the coment is the parent"""
+        
         if self.parent is None:
             return True
         return False

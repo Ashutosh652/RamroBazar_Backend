@@ -1,3 +1,4 @@
+from pyexpat import model
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from ramrobazar.inventory.models import Category, Brand, Item, Media
@@ -60,7 +61,7 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Item
-        fields = ['name', 'detail', 'web_id', 'slug', 'media',
+        fields = ['id', 'name', 'detail', 'slug', 'media',
                   'is_visible', 'is_blocked', 'show_price', ]
         read_only = True
         editable = False
@@ -76,11 +77,22 @@ class ItemDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ['web_id', 'slug', 'name', 'description', 'brand', 'show_price', 'sold_times', 'location', 'is_visible',
-                  'is_blocked', 'created_at', 'updated_at', 'seller', 'category', 'media', 'users_wishlist', 'reported_by', ]
+        fields = ['id', 'slug', 'name', 'description', 'brand', 'show_price', 'sold_times', 'location', 'is_visible',
+                  'is_blocked', 'created_at', 'updated_at', 'seller', 'category', 'media', 'users_wishlist', 'reported_by']
         read_only = True
         editable = False
         lookup_field = 'slug'
+
+
+class AddItemSerializer(serializers.ModelSerializer):
+    """Serializer for adding items (by users)."""
+
+    brand = BrandSerializer(many=False, read_only=True)
+    category = CategorySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Item
+        fields = ['name', 'description', 'brand', 'show_price', 'location', 'is_visible', 'is_blocked', 'category']
 
 
 class RegisterUserSerializer(serializers.ModelSerializer):
