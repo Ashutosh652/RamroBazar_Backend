@@ -1,4 +1,4 @@
-from pyexpat import model
+from django.utils.text import slugify
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from ramrobazar.inventory.models import Category, Brand, Item, Media
@@ -28,7 +28,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['name', 'slug', 'parent', ]
+        fields = ['id', 'name', 'slug', 'parent', ]
 
     def get_parent(self, obj):
         if obj.parent:
@@ -40,7 +40,7 @@ class BrandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Brand
-        fields = ['name', ]
+        fields = ['id', 'name', ]
 
 
 class MediaSerializer(serializers.ModelSerializer):
@@ -71,9 +71,9 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
 class ItemDetailSerializer(serializers.ModelSerializer):
     """Serializer for items (for retrieving/detail purpose)."""
 
-    category = CategorySerializer(many=True, read_only=True)
+    # category = CategorySerializer(many=True, read_only=True)
     media = MediaSerializer(many=True, read_only=True)
-    brand = BrandSerializer(many=False, read_only=True)
+    # brand = BrandSerializer(many=False, read_only=True)
 
     class Meta:
         model = Item

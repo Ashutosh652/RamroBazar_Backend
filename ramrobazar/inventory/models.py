@@ -1,6 +1,7 @@
 from io import BytesIO
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
 from django.core.files.storage import default_storage as storage
 from django.core.files.base import ContentFile
 from mptt.models import MPTTModel, TreeForeignKey, TreeManyToManyField
@@ -10,7 +11,7 @@ from ramrobazar.account.models import User
 
 class Category(MPTTModel):
     name = models.CharField(max_length=100, null=False, blank=False, verbose_name=_("category name"), help_text=_("format: required, max_length=100"))
-    slug = models.SlugField(max_length=150, null=False, blank=False, verbose_name=_("category url"), help_text=_("format: required, letters, numbers, underscore or hyphen"))
+    slug = models.SlugField(max_length=150, null=False, blank=False, editable=False, verbose_name=_("category url"), help_text=_("format: required, letters, numbers, underscore or hyphen"))
     parent = TreeForeignKey("self", on_delete=models.SET_NULL, related_name="children", null=True, blank=True, verbose_name=_("parent category"), help_text=_("format: not required"))
 
     class MPTTMeta:
@@ -19,6 +20,10 @@ class Category(MPTTModel):
     class Meta:
         verbose_name = _('product category')
         verbose_name_plural = _('product categories')
+    
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Category, self).save(*args, **kwargs)
     
     def __str__(self):
         return self.name
@@ -33,7 +38,7 @@ class Brand(models.Model):
 
 class Item(models.Model):
     # web_id = models.CharField(max_length=50, unique=True, verbose_name=_("item web id"), help_text=_("format: required, unique"))
-    slug = models.SlugField(max_length=255, null=False, blank=False, verbose_name=_("item url"), help_text=_("format: required, letters, numbers, underscore or hyphen"))
+    slug = models.SlugField(max_length=255, null=False, blank=False, editable=False, verbose_name=_("item url"), help_text=_("format: required, letters, numbers, underscore or hyphen"))
     name = models.CharField(max_length=250, null=False, blank=False, verbose_name=_("item name"), help_text=_("format: required, max_length=250"))
     seller = models.ForeignKey(User, related_name="item", on_delete=models.CASCADE)
     description = models.TextField(verbose_name=_("item description"), help_text=_("format: required"))
@@ -100,6 +105,10 @@ class SoldStatus(models.Model):
     sold_units = models.IntegerField(default=0, blank=False, help_text=_("number of units/times sold to buyer"), null=True)
     date_sold = models.DateField(blank=False, verbose_name=_("date sold"), help_text=_("date when item was sold"), null=True)
 
+    class Meta:
+        verbose_name = _('Sold Status')
+        verbose_name_plural = _('Sold Status')
+
     def __str__(self):
         return f"{self.item.name}: Sold: {self.is_sold}"
 
@@ -120,7 +129,7 @@ class Comment(MPTTModel):
     @property
     def is_parent(self):
         """returns True if a comment has no parent i.e. the coment is the parent"""
-        
+
         if self.parent is None:
             return True
         return False

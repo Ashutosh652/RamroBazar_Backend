@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.views import View
+from django.utils.text import slugify
 from rest_framework import viewsets, mixins, status
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -9,14 +10,18 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from ramrobazar.account.models import User
-from ramrobazar.inventory.models import Category, Item
-from ramrobazar.drf.serializers import RegisterUserSerializer, MyTokenObtainPairSerializer, ItemSerializer, ItemDetailSerializer, CategorySerializer, UserSerializer, UserDetailSerializer, UserUpdateSerializer, ChangePasswordSerializer
+from ramrobazar.inventory.models import Brand, Category, Item
+from ramrobazar.drf.serializers import RegisterUserSerializer, MyTokenObtainPairSerializer, ItemSerializer, ItemDetailSerializer, AddItemSerializer, CategorySerializer, UserSerializer, UserDetailSerializer, UserUpdateSerializer, ChangePasswordSerializer
 from ramrobazar.drf.permissions import CustomProfileUpdatePermission
 
 
 """..........................Customizing Token Claims..................................................................."""
+
+
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
 """..........................Customizing Token Claims End..................................................................."""
 
 
@@ -44,8 +49,9 @@ class ItemList(viewsets.GenericViewSet, mixins.ListModelMixin):
     permission_classes = [IsAuthenticatedOrReadOnly]
     lookup_field = 'slug'
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_fields = ['category__slug', 'brand__name',]
-    search_fields = ['name', 'description', 'category__name', 'brand__name', 'location']
+    filterset_fields = ['category__slug', 'brand__name', ]
+    search_fields = ['name', 'description',
+                     'category__name', 'brand__name', 'location']
 
     def get_serializer_class(self):
         try:
@@ -57,6 +63,34 @@ class ItemList(viewsets.GenericViewSet, mixins.ListModelMixin):
         item = self.get_object()
         serializer = self.get_serializer(item)
         return Response(serializer.data)
+
+
+class AddItem(viewsets.GenericViewSet, mixins.CreateModelMixin):
+    """View for adding products by users."""
+
+    serializer_class = AddItemSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            brand = Brand.objects.get(id=request.data['brand'])
+        except Brand.DoesNotExist:
+            return Response({'detail': 'brand does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        category = []
+        try:
+            for cat in request.data['category']:
+                category.append(Category.objects.get(id=cat))
+        except Category.DoesNotExist:
+            return Response({'detail': 'at leat one category does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        self.perform_create(serializer, brand, category)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer, brand, category):
+        serializer.save(seller=self.request.user,
+                        brand=brand, category=category)
 
 
 class UserRegister(viewsets.GenericViewSet, mixins.CreateModelMixin):
@@ -87,13 +121,13 @@ class UserList(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     def get_queryset(self):
         return User.objects.exclude(is_superuser=True).exclude(is_staff=True)
-    
+
     def get_serializer_class(self):
         try:
             return self.serializer_action_classes[self.action]
         except:
             return self.serializer_class
-    
+
     def retrieve(self, request, id=None):
         user = self.get_object()
         serializer = self.get_serializer(user)
@@ -105,7 +139,7 @@ class UserUpdate(viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.Retrie
 
     serializer_class = UserUpdateSerializer
     queryset = User.objects.all()
-    permission_classes = [CustomProfileUpdatePermission,]
+    permission_classes = [CustomProfileUpdatePermission, ]
     authentication_classes = [JWTAuthentication]
     lookup_field = 'id'
 
@@ -122,7 +156,7 @@ class UserPasswordUpdate(viewsets.GenericViewSet, mixins.UpdateModelMixin):
 
 class BlackListToken(viewsets.GenericViewSet, mixins.CreateModelMixin):
     """View for blacklisting unnecessary tokens."""
-    
+
     permission_classes = [AllowAny]
 
     def create(self, request):
