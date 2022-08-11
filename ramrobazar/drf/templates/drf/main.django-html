@@ -34,6 +34,7 @@
                 <p>Authorization: Required</p>
                 <p>Content-Type: application/json<br>
                         <pre><code>
+                        Request Type: Post
                         {
                                 "name": "Samsung4",                             Required, string
                                 "description": "Description",                   Required, string
@@ -56,6 +57,7 @@
                 <p>Authorization: Required</p>
                 <p>Content-Type: multipart/form-data<br>
                         <pre><code>
+                                Request Type: Post
                                 {
                                         "image": {file},                        Required, image file
                                         "alt_text": "Laptop",                   Not Required, string
@@ -120,6 +122,7 @@
                 <p><strong>User Register:</strong>
                         <p>Content-Type: application/json<br>
                                 <pre><code>
+                                        Request Type: Post
                                         {
                                                 "contact_number": "9841222222",                         Required, string of valid phone number
                                                 "first_name": "TestUser2",                              Required, string
@@ -135,6 +138,7 @@
                 <p><strong>User Login:</strong>
                         <p>Content-Type: application/json<br>
                                 <pre><code>
+                                Request Type: Post
                                 {
                                         "contact_number": "9841111111",                                 Required, contact number of a registered user
                                         "password": "password123"                                       Required, password of the same user
@@ -149,6 +153,7 @@
                 <p><strong>User Login Refresh:</strong>
                         <p>Content-Type: application/json<br>
                                 <pre><code>
+                                Request Type: Post
                                 {
                                         "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmV....."               Required, refresh token of logged in user
                                 }
@@ -199,7 +204,22 @@
                         <p>A user can only update his/her own profile only. So, the access token must be sent in
                                 'header' while performing an update request to the given link. The authorization type is
                                 'Bearer Token'. So the header format is 'Authorization: Bearer {access
-                                token}.'<br>Authorization: Required</p>
+                                token}.'<br>
+                                <p>Authorization: Required</p>
+                                <p>Content-Type: multipart/form</p>
+                                <p><pre><code>
+                                        Request Type: Patch
+                                        {
+                                                "first_name": "TestUser1",
+                                                "last_name": "Tester",
+                                                "profile_pic": {file},
+                                                "contact_number": "984-1111111",
+                                                "email": "testuser1@gmail.com",
+                                                "address": null,
+                                                "date_of_birth": null
+                                        }
+                                </code></pre></p>
+                        </p>
                         <p>Url format = http://afternoon-thicket-97192.herokuapp.com/api/user/update/{user_id}
                                 <br>Example:<a
                                         href='http://afternoon-thicket-97192.herokuapp.com/api/user/update/2'>http://afternoon-thicket-97192.herokuapp.com/api/user/update/2</a>

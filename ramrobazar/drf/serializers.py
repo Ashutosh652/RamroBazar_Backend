@@ -6,6 +6,8 @@ from ramrobazar.account.models import User
 
 
 """..........................Customizing Token Claims..................................................................."""
+
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     """Overriding the default token serializer class so that the token contains additional information."""
 
@@ -18,6 +20,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['first_name'] = str(user.first_name)
         token['last_name'] = str(user.last_name)
         return token
+
+
 """..........................Customizing Token Claims End..................................................................."""
 
 
@@ -52,10 +56,6 @@ class MediaSerializer(serializers.ModelSerializer):
         model = Media
         fields = ['id', 'image', 'alt_text', 'is_feature', 'item', ]
         read_only = True
-
-
-# class AddMediaSerializer(serializers.ModelSerializer):
-#     """Serializer for adding media (images of items)"""
 
 
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
@@ -98,7 +98,8 @@ class AddItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ['id', 'name', 'description', 'brand', 'show_price', 'location', 'is_visible', 'is_blocked', 'category']
+        fields = ['id', 'name', 'description', 'brand', 'show_price',
+                  'location', 'is_visible', 'is_blocked', 'category']
 
 
 class RegisterUserSerializer(serializers.ModelSerializer):
@@ -172,7 +173,9 @@ class UserDetailSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating user detail/information."""
 
+    profile_pic = serializers.ImageField(required=False)
+
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name',
+        fields = ['id', 'first_name', 'last_name', 'profile_pic',
                   'contact_number', 'email', 'address', 'date_of_birth']

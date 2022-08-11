@@ -168,6 +168,7 @@ class UserUpdate(viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.Retrie
     queryset = User.objects.all()
     permission_classes = [CustomProfileUpdatePermission, ]
     authentication_classes = [JWTAuthentication]
+    parser_classes = [MultiPartParser, FormParser]
     lookup_field = 'id'
 
 
