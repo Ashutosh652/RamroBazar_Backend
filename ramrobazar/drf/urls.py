@@ -11,6 +11,7 @@ app_name = 'drf'
 router = DefaultRouter()
 router.register(r'items', views.ItemList, basename='items')
 router.register(r'item/add', views.AddItem, basename='item-add')
+router.register(r'media/add', views.AddMedia, basename='media-add')
 router.register(r'categories', views.CategoryList, basename='categories')
 router.register(r'user/register', views.UserRegister, basename='user-register')
 router.register(r'user/logout', views.BlackListToken, basename='user-logout')

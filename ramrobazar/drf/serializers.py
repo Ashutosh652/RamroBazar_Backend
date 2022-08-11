@@ -1,4 +1,4 @@
-from django.utils.text import slugify
+from importlib.metadata import requires
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from ramrobazar.inventory.models import Category, Brand, Item, Media
@@ -46,10 +46,16 @@ class BrandSerializer(serializers.ModelSerializer):
 class MediaSerializer(serializers.ModelSerializer):
     """Serializer for media (images of items)."""
 
+    image = serializers.ImageField(required=False)
+
     class Meta:
         model = Media
-        fields = ['image', 'alt_text', 'is_feature', ]
+        fields = ['id', 'image', 'alt_text', 'is_feature', 'item', ]
         read_only = True
+
+
+# class AddMediaSerializer(serializers.ModelSerializer):
+#     """Serializer for adding media (images of items)"""
 
 
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
@@ -71,9 +77,9 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
 class ItemDetailSerializer(serializers.ModelSerializer):
     """Serializer for items (for retrieving/detail purpose)."""
 
-    # category = CategorySerializer(many=True, read_only=True)
+    category = CategorySerializer(many=True, read_only=True)
     media = MediaSerializer(many=True, read_only=True)
-    # brand = BrandSerializer(many=False, read_only=True)
+    brand = BrandSerializer(many=False, read_only=True)
 
     class Meta:
         model = Item
@@ -92,7 +98,7 @@ class AddItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ['name', 'description', 'brand', 'show_price', 'location', 'is_visible', 'is_blocked', 'category']
+        fields = ['id', 'name', 'description', 'brand', 'show_price', 'location', 'is_visible', 'is_blocked', 'category']
 
 
 class RegisterUserSerializer(serializers.ModelSerializer):

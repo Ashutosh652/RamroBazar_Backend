@@ -63,7 +63,7 @@ class Media(models.Model):
 
     item = models.ForeignKey(Item, null=True, blank=True, related_name="media", on_delete=models.PROTECT)
     image = models.ImageField(default='default_item.jpg', upload_to='items', null=False, blank=False, verbose_name=_("item image"), help_text=_("format: required, default-default_product.png"))
-    alt_text = models.CharField(max_length=255, verbose_name=_("alternative text"), help_text=_("format: required, max-255"))
+    alt_text = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("alternative text"), help_text=_("format: required, max-255"))
     is_feature = models.BooleanField(default=False, verbose_name=_("default/main image"), help_text=_("format: default=false, true=default/main image"))
 
     class Meta:

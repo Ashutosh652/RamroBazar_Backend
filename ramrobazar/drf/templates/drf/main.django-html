@@ -30,6 +30,44 @@
                 </p>
         </div><br>
         <div class='content'>
+                <p><strong>Add Item:</strong></p>
+                <p>Authorization: Required</p>
+                <p>Content-Type: application/json<br>
+                        <pre><code>
+                        {
+                                "name": "Samsung4",                             Required, string
+                                "description": "Description",                   Required, string
+                                "brand": 1,                                     Required, id of an existing brand
+                                "show_price": 25000,                            Required, decimal value
+                                "location": "Kathmandu, Bhaktapur",             Not Required, string
+                                "category": [                                   Required, ids of existing categories
+                                    1,
+                                    2
+                                ],
+                                "is_visible": true                              Not Required, boolean value
+                        }
+                        </code></pre>
+                </p>
+                <p><a href='http://afternoon-thicket-97192.herokuapp.com/api/item/add'>http://afternoon-thicket-97192.herokuapp.com/api/item/add</a>
+                </p>
+        </div><br>
+        <div class='content'>
+                <p><strong>Add Item Image:</strong></p>
+                <p>Authorization: Required</p>
+                <p>Content-Type: multipart/form-data<br>
+                        <pre><code>
+                                {
+                                        "image": {file},                        Required, image file
+                                        "alt_text": "Laptop",                   Not Required, string
+                                        "is_feature": false,                    Not Required, boolean value
+                                        "item": 14                              Required, id of an existing item
+                                }
+                        </code></pre>
+                </p>
+                <p><a href='http://afternoon-thicket-97192.herokuapp.com/api/item/add'>http://afternoon-thicket-97192.herokuapp.com/api/item/add</a>
+                </p>
+        </div><br>
+        <div class='content'>
                 <p><strong>List of all categories:</strong><br><a
                                 href='http://afternoon-thicket-97192.herokuapp.com/api/categories'>http://afternoon-thicket-97192.herokuapp.com/api/categories</a>
                 </p>
@@ -79,18 +117,43 @@
                 </p>
         </div><br>
         <div class='content'>
-                <p><strong>User Register:</strong><br><a
+                <p><strong>User Register:</strong>
+                        <p>Content-Type: application/json<br>
+                                <pre><code>
+                                        {
+                                                "contact_number": "9841222222",                         Required, string of valid phone number
+                                                "first_name": "TestUser2",                              Required, string
+                                                "last_name": "Tester",                                  Required, string
+                                                "password": "password123"                               Required, string
+                                        }
+                                </code></pre>
+                        </p><br><a
                                 href='http://afternoon-thicket-97192.herokuapp.com/api/user/register'>http://afternoon-thicket-97192.herokuapp.com/api/user/register</a>
                 </p>
         </div><br>
         <div class='content'>
-                <p><strong>User Login:</strong><br>
+                <p><strong>User Login:</strong>
+                        <p>Content-Type: application/json<br>
+                                <pre><code>
+                                {
+                                        "contact_number": "9841111111",                                 Required, contact number of a registered user
+                                        "password": "password123"                                       Required, password of the same user
+                                }
+                        </code></pre>
+                        </p><br>
                         <p>Obtain refresh and access tokens for user login.</p><a
                                 href='http://afternoon-thicket-97192.herokuapp.com/api/token'>http://afternoon-thicket-97192.herokuapp.com/api/token</a>
                 </p>
         </div><br>
         <div class='content'>
-                <p><strong>User Login Refresh:</strong><br>
+                <p><strong>User Login Refresh:</strong>
+                        <p>Content-Type: application/json<br>
+                                <pre><code>
+                                {
+                                        "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmV....."               Required, refresh token of logged in user
+                                }
+                        </code></pre>
+                        </p><br>
                         <p>Refresh the tokens after the access token is expired. Access token
                                 expires every
                                 5
@@ -100,7 +163,7 @@
         </div><br>
         <div class='content'>
                 <p><strong>User Logout:</strong><br>
-                        <p>Token is blacklisted when the user logs out.</p><a
+                        <p>Token is blacklisted when it is unnecessary.</p><a
                                 href='http://afternoon-thicket-97192.herokuapp.com/api/user/logout'>http://afternoon-thicket-97192.herokuapp.com/api/user/logout</a>
                 </p>
         </div><br>
