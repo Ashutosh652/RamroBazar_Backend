@@ -1,3 +1,4 @@
+from functools import partial
 from django.shortcuts import render
 from django.views import View
 from rest_framework import viewsets, mixins, status
@@ -71,6 +72,7 @@ class AddItem(viewsets.GenericViewSet, mixins.CreateModelMixin):
     serializer_class = AddItemSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+    lookup_field = 'slug'
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -96,6 +98,54 @@ class AddItem(viewsets.GenericViewSet, mixins.CreateModelMixin):
     def perform_create(self, serializer, brand, category):
         serializer.save(seller=self.request.user,
                         brand=brand, category=category)
+
+
+class UpdateItem(viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.RetrieveModelMixin):
+    """View for updating item information."""
+
+    serializer_class = AddItemSerializer
+    queryset = Item.objects.all()
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    lookup_field = 'slug'
+
+    def update(self, request, *args, **kwargs):
+        item = self.get_object()
+        try:
+            if request.data['brand']:
+                try:
+                    brand = Brand.objects.get(id=request.data['brand'])
+                    item.brand = brand
+                except Brand.DoesNotExist:
+                    return Response({'detail': 'brand does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            brand = item.brand
+        category = []
+        try:
+            if request.data['category']:
+                try:
+                    for cat in request.data['category']:
+                        category.append(Category.objects.get(id=cat))
+                    item.category = category
+                except Category.DoesNotExist:
+                    return Response({'detail': 'at least one category does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            for cat in item.category.all():
+                category.append(cat)
+        # item.name = request.data['name']
+        # item.description = request.data['description']
+        # # if brand:
+        # #     item.brand = brand
+        # item.show_price = request.data['show_price']
+        # item.location = request.data['location']
+        # item.is_visible = request.data['is_visible']
+        # # if category:
+        # #     item.category = category
+        item.save()
+        serializer = self.get_serializer(item, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
 
 class AddMedia(viewsets.GenericViewSet, mixins.CreateModelMixin):

@@ -99,7 +99,7 @@ class AddItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = ['id', 'name', 'description', 'brand', 'show_price',
-                  'location', 'is_visible', 'is_blocked', 'category']
+                  'location', 'is_visible', 'category']
 
 
 class RegisterUserSerializer(serializers.ModelSerializer):
