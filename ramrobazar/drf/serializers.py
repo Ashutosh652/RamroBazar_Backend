@@ -1,4 +1,3 @@
-from importlib.metadata import requires
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from ramrobazar.inventory.models import Category, Brand, Item, Media
@@ -25,8 +24,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 """..........................Customizing Token Claims End..................................................................."""
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    """Serializer for category."""
+class SubCategorySerializer(serializers.ModelSerializer):
+    """Serializer for lowest level category that has no children."""
 
     parent = serializers.SerializerMethodField(source='get_parent')
 
@@ -38,6 +37,30 @@ class CategorySerializer(serializers.ModelSerializer):
         if obj.parent:
             return obj.parent.name
 
+
+class CategorySerializer(serializers.ModelSerializer):
+    """Serializer for category."""
+
+    parent = serializers.SerializerMethodField(source='get_parent')
+    children = serializers.SerializerMethodField(source='get_children')
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug', 'parent', 'children', ]
+
+    def get_parent(self, obj):
+        if obj.parent:
+            return obj.parent.name
+    
+    def get_children(self, obj):
+        if obj.children.exists():
+            children = [child for child in obj.children.all()]
+            children_with_children = [child for child in children if child.children.exists()]
+            children_without_children = [child for child in children if not child.children.exists()]
+            if children_with_children:
+                return CategorySerializer(children_with_children, many=True).data
+            if children_without_children:
+                return SubCategorySerializer(children_without_children, many=True).data
 
 class BrandSerializer(serializers.ModelSerializer):
     """Serializer for brand."""
@@ -68,7 +91,7 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Item
         fields = ['id', 'name', 'detail', 'slug', 'media',
-                  'is_visible', 'is_blocked', 'show_price', ]
+                  'is_visible', 'is_blocked', 'show_price', 'description', ]
         read_only = True
         editable = False
         depth = 0

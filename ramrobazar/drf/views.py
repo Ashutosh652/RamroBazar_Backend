@@ -36,7 +36,7 @@ class MainView(View):
 class CategoryList(viewsets.GenericViewSet, mixins.ListModelMixin):
     """View for listing all categories."""
 
-    queryset = Category.objects.all()
+    queryset = Category.objects.filter(parent=None)
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
 
@@ -126,26 +126,17 @@ class UpdateItem(viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.Retrie
                 try:
                     for cat in request.data['category']:
                         category.append(Category.objects.get(id=cat))
-                    item.category = category
+                        item.category.add(cat)
                 except Category.DoesNotExist:
                     return Response({'detail': 'at least one category does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
         except:
             for cat in item.category.all():
                 category.append(cat)
-        # item.name = request.data['name']
-        # item.description = request.data['description']
-        # # if brand:
-        # #     item.brand = brand
-        # item.show_price = request.data['show_price']
-        # item.location = request.data['location']
-        # item.is_visible = request.data['is_visible']
-        # # if category:
-        # #     item.category = category
         item.save()
         serializer = self.get_serializer(item, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class AddMedia(viewsets.GenericViewSet, mixins.CreateModelMixin):
@@ -163,11 +154,20 @@ class AddMedia(viewsets.GenericViewSet, mixins.CreateModelMixin):
             item = Item.objects.get(id = request.data['item'])
         except Item.DoesNotExist:
             return Response({'detail': 'item does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
-        self.perform_create(serializer, item)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if request.user == item.seller:
+            self.perform_create(serializer, item)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'detail': 'the user that is sending the request is not the user that owns the item for which the image is to be added.'}, status=status.HTTP_403_FORBIDDEN)
 
     def perform_create(self, serializer, item):
         serializer.save(item=item)
+
+
+# class UpdateMedia(viewsets.GenericViewSet, mixins.UpdateModelMixin):
+#     """View for updating media (images for items) (by users)."""
+
+#     serializer_class = MediaSerializer
 
 
 class UserRegister(viewsets.GenericViewSet, mixins.CreateModelMixin):

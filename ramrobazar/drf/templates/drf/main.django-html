@@ -53,6 +53,30 @@
                 </p>
         </div><br>
         <div class='content'>
+                <p><strong>Update Item:</strong></p>
+                <p>Authorization: Required</p>
+                <p>Content-Type: application/json<br>
+                        <pre><code>
+                        Request Type: Patch
+                        {
+                                "name": "Samsung1",                             Not Required, string
+                                "description": "Description",                   Not Required, string
+                                "brand": 1,                                     Not Required, id of an existing brand
+                                "show_price": 25001,                            Not Required, decimal value
+                                "location": "KTM, Bhaktapur",                   Not Required, string
+                                "is_visible": true,                             Not Required, boolean value
+                                "category": [                                   Not Required, ids of existing categories
+                                    1,
+                                    2
+                                ]
+                        }
+                        </code></pre>
+                </p>
+                <p>Url format = http://afternoon-thicket-97192.herokuapp.com/api/item/update/{slug}</p>
+                <p><a href='http://afternoon-thicket-97192.herokuapp.com/api/item/update/samsung1-1'>http://afternoon-thicket-97192.herokuapp.com/api/item/update/samsung1-1</a>
+                </p>
+        </div><br>
+        <div class='content'>
                 <p><strong>Add Item Image:</strong></p>
                 <p>Authorization: Required</p>
                 <p>Content-Type: multipart/form-data<br>
@@ -66,7 +90,7 @@
                                 }
                         </code></pre>
                 </p>
-                <p><a href='http://afternoon-thicket-97192.herokuapp.com/api/item/add'>http://afternoon-thicket-97192.herokuapp.com/api/item/add</a>
+                <p><a href='http://afternoon-thicket-97192.herokuapp.com/api/media/add'>http://afternoon-thicket-97192.herokuapp.com/api/media/add</a>
                 </p>
         </div><br>
         <div class='content'>
