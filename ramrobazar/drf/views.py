@@ -2,7 +2,12 @@ from functools import partial
 from django.shortcuts import render
 from django.views import View
 from rest_framework import viewsets, mixins, status
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticatedOrReadOnly,
+    IsAuthenticated,
+)
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -12,7 +17,19 @@ from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from ramrobazar.account.models import User
 from ramrobazar.inventory.models import Brand, Category, Item
-from ramrobazar.drf.serializers import MediaSerializer, RegisterUserSerializer, MyTokenObtainPairSerializer, ItemSerializer, ItemDetailSerializer, AddItemSerializer, CategorySerializer, UserSerializer, UserDetailSerializer, UserUpdateSerializer, ChangePasswordSerializer
+from ramrobazar.drf.serializers import (
+    MediaSerializer,
+    RegisterUserSerializer,
+    MyTokenObtainPairSerializer,
+    ItemSerializer,
+    ItemDetailSerializer,
+    AddItemSerializer,
+    CategorySerializer,
+    UserSerializer,
+    UserDetailSerializer,
+    UserUpdateSerializer,
+    ChangePasswordSerializer,
+)
 from ramrobazar.drf.permissions import CustomProfileUpdatePermission
 
 
@@ -30,7 +47,7 @@ class MainView(View):
     """View for listing the endpoints."""
 
     def get(self, request, *args, **kwargs):
-        return render(request, 'drf/main.django-html')
+        return render(request, "drf/main.django-html")
 
 
 class CategoryList(viewsets.GenericViewSet, mixins.ListModelMixin):
@@ -42,17 +59,22 @@ class CategoryList(viewsets.GenericViewSet, mixins.ListModelMixin):
 
 
 class ItemList(viewsets.GenericViewSet, mixins.ListModelMixin):
-    """View for listing and retrieving all items."""
+    """View for listing and retrieving all items for sale."""
 
-    queryset = Item.objects.all()
+    items_for_sale = [item.id for item in Item.objects.all() if item.sold_status.is_sold == False]
+    queryset = Item.objects.filter(pk__in=items_for_sale)
     serializer_class = ItemSerializer
-    serializer_action_classes = {'retrieve': ItemDetailSerializer, }
+    serializer_action_classes = {
+        "retrieve": ItemDetailSerializer,
+    }
     permission_classes = [IsAuthenticatedOrReadOnly]
-    lookup_field = 'slug'
+    lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_fields = ['category__slug', 'brand__name', ]
-    search_fields = ['name', 'description',
-                     'category__name', 'brand__name', 'location']
+    filterset_fields = [
+        "category__slug",
+        "brand__name",
+    ]
+    search_fields = ["name", "description", "category__name", "brand__name", "location"]
 
     def get_serializer_class(self):
         try:
@@ -72,7 +94,7 @@ class AddItem(viewsets.GenericViewSet, mixins.CreateModelMixin):
     serializer_class = AddItemSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
-    lookup_field = 'slug'
+    lookup_field = "slug"
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -80,55 +102,67 @@ class AddItem(viewsets.GenericViewSet, mixins.CreateModelMixin):
 
         """Try to get the brand with the id that was sent if it exists. Otherwise send an error response."""
         try:
-            brand = Brand.objects.get(id=request.data['brand'])
+            brand = Brand.objects.get(id=request.data["brand"])
         except Brand.DoesNotExist:
-            return Response({'detail': 'brand does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "brand does not exist."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         """Try to get the category with the ids that was sent if they exist. Send an error response if at least one doesn't exist."""
         category = []
         try:
-            for cat in request.data['category']:
+            for cat in request.data["category"]:
                 category.append(Category.objects.get(id=cat))
         except Category.DoesNotExist:
-            return Response({'detail': 'at leat one category does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "at leat one category does not exist."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         self.perform_create(serializer, brand, category)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer, brand, category):
-        serializer.save(seller=self.request.user,
-                        brand=brand, category=category)
+        serializer.save(seller=self.request.user, brand=brand, category=category)
 
 
-class UpdateItem(viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.RetrieveModelMixin):
+class UpdateItem(
+    viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.RetrieveModelMixin
+):
     """View for updating item information."""
 
     serializer_class = AddItemSerializer
     queryset = Item.objects.all()
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
-    lookup_field = 'slug'
+    lookup_field = "slug"
 
     def update(self, request, *args, **kwargs):
         item = self.get_object()
         try:
-            if request.data['brand']:
+            if request.data["brand"]:
                 try:
-                    brand = Brand.objects.get(id=request.data['brand'])
+                    brand = Brand.objects.get(id=request.data["brand"])
                     item.brand = brand
                 except Brand.DoesNotExist:
-                    return Response({'detail': 'brand does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(
+                        {"detail": "brand does not exist."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
         except:
             brand = item.brand
         category = []
         try:
-            if request.data['category']:
+            if request.data["category"]:
                 try:
-                    for cat in request.data['category']:
+                    for cat in request.data["category"]:
                         category.append(Category.objects.get(id=cat))
                         item.category.add(cat)
                 except Category.DoesNotExist:
-                    return Response({'detail': 'at least one category does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(
+                        {"detail": "at least one category does not exist."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
         except:
             for cat in item.category.all():
                 category.append(cat)
@@ -145,20 +179,30 @@ class AddMedia(viewsets.GenericViewSet, mixins.CreateModelMixin):
     serializer_class = MediaSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
-    parser_classes = (MultiPartParser, FormParser,)
+    parser_classes = (
+        MultiPartParser,
+        FormParser,
+    )
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            item = Item.objects.get(id = request.data['item'])
+            item = Item.objects.get(id=request.data["item"])
         except Item.DoesNotExist:
-            return Response({'detail': 'item does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "item does not exist."}, status=status.HTTP_400_BAD_REQUEST
+            )
         if request.user == item.seller:
             self.perform_create(serializer, item)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response({'detail': 'the user that is sending the request is not the user that owns the item for which the image is to be added.'}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {
+                    "detail": "the user that is sending the request is not the user that owns the item for which the image is to be added."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
     def perform_create(self, serializer, item):
         serializer.save(item=item)
@@ -191,10 +235,12 @@ class UserList(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-    serializer_action_classes = {'retrieve': UserDetailSerializer, }
-    lookup_field = 'id'
+    serializer_action_classes = {
+        "retrieve": UserDetailSerializer,
+    }
+    lookup_field = "id"
     filter_backends = [SearchFilter]
-    search_fields = ['first_name', 'last_name', 'address', 'email']
+    search_fields = ["first_name", "last_name", "address", "email"]
 
     def get_queryset(self):
         return User.objects.exclude(is_superuser=True).exclude(is_staff=True)
@@ -211,15 +257,19 @@ class UserList(viewsets.GenericViewSet, mixins.ListModelMixin):
         return Response(serializer.data)
 
 
-class UserUpdate(viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.RetrieveModelMixin):
+class UserUpdate(
+    viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.RetrieveModelMixin
+):
     """View for updating user information."""
 
     serializer_class = UserUpdateSerializer
     queryset = User.objects.all()
-    permission_classes = [CustomProfileUpdatePermission, ]
+    permission_classes = [
+        CustomProfileUpdatePermission,
+    ]
     authentication_classes = [JWTAuthentication]
     parser_classes = [MultiPartParser, FormParser]
-    lookup_field = 'id'
+    lookup_field = "id"
 
 
 class UserPasswordUpdate(viewsets.GenericViewSet, mixins.UpdateModelMixin):
@@ -229,18 +279,29 @@ class UserPasswordUpdate(viewsets.GenericViewSet, mixins.UpdateModelMixin):
     serializer_class = ChangePasswordSerializer
     permission_classes = [CustomProfileUpdatePermission]
     authentication_classes = [JWTAuthentication]
-    lookup_field = 'id'
+    lookup_field = "id"
 
 
-class BlackListToken(viewsets.GenericViewSet, mixins.CreateModelMixin):
-    """View for blacklisting unnecessary tokens."""
+# class BlackListToken(viewsets.GenericViewSet):
+#     """View for blacklisting unnecessary tokens."""
 
-    permission_classes = [AllowAny]
+#     permission_classes = [AllowAny]
 
-    def create(self, request):
-        try:
-            refresh_token = request.data("refresh_token")
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-        except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+#     def create(self, request):
+#         try:
+#             refresh_token = request.data("refresh_token")
+#             token = RefreshToken(refresh_token)
+#             token.blacklist()
+#         except Exception as e:
+#             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+# class BlackListToken(APIView):
+#     permission_classes = [AllowAny]
+
+#     def post(self, request):
+#         try:
+#             refresh_token = request.data['refresh_token']
+#             token = RefreshToken(refresh_token)
+#             token.blacklist()
+#         except Exception as e:
+#             return Response(status=status.HTTP_400_BAD_REQUEST)
