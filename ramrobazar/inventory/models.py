@@ -1,4 +1,6 @@
+from email.policy import default
 from io import BytesIO
+from tabnanny import verbose
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
@@ -54,6 +56,8 @@ class Brand(models.Model):
     name = models.CharField(
         max_length=100,
         unique=True,
+        null=False,
+        blank=False,
         verbose_name=_("brand name"),
         help_text=_("format: required, unique, max-100"),
     )
@@ -79,9 +83,15 @@ class Item(models.Model):
         verbose_name=_("item name"),
         help_text=_("format: required, max_length=250"),
     )
-    seller = models.ForeignKey(User, related_name="item", on_delete=models.CASCADE)
+    seller = models.ForeignKey(
+        User, null=False, blank=False, related_name="item", on_delete=models.CASCADE
+    )
     description = models.TextField(
-        verbose_name=_("item description"), help_text=_("format: required")
+        null=False,
+        blank=True,
+        default="No Description Provided",
+        verbose_name=_("item description"),
+        help_text=_("format: required"),
     )
     category = TreeManyToManyField(Category)
     is_visible = models.BooleanField(
@@ -95,12 +105,16 @@ class Item(models.Model):
         help_text=_("format: true->product is blocked"),
     )
     created_at = models.DateTimeField(
+        null=False,
+        blank=True,
         auto_now_add=True,
         editable=False,
         verbose_name=_("date item was created"),
         help_text=_("format: Y-m-d H:M:S"),
     )
     updated_at = models.DateTimeField(
+        null=False,
+        blank=True,
         auto_now=True,
         verbose_name=_("date item was last updated"),
         help_text=_("format: Y-m-d H:M:S"),
@@ -119,11 +133,10 @@ class Item(models.Model):
     show_price = models.DecimalField(
         max_digits=7,
         decimal_places=2,
+        null=False,
+        blank=False,
         verbose_name=_("Cost of Product shown on the site."),
         help_text=_("format: max price = 99999.99"),
-    )
-    sold_times = models.IntegerField(
-        null=False, default=0, verbose_name=_("sold times")
     )
     location = models.TextField(
         null=True, blank=True, verbose_name=_("available locations")
@@ -133,14 +146,47 @@ class Item(models.Model):
         return self.name
 
 
+class ItemSpecification(models.Model):
+    """Model representing the details of an item which the user can add."""
+
+    item = models.ForeignKey(
+        Item,
+        null=False,
+        blank=False,
+        related_name="item_specification",
+        on_delete=models.CASCADE,
+    )
+    key = models.CharField(
+        max_length=50,
+        null=False,
+        blank=False,
+        verbose_name=_("detail title"),
+        help_text=_("format: required"),
+    )
+    value = models.CharField(
+        max_length=150,
+        null=False,
+        blank=False,
+        verbose_name=_("detail value"),
+        help_text=_("format: required"),
+    )
+
+    class Meta:
+        verbose_name = _("Item Specifications")
+        verbose_name_plural = _("Item Specifications")
+
+    def __str__(self) -> str:
+        return self.item.name + "'s " + self.key + " is " + self.value
+
+
 class Media(models.Model):
     """Model representing images of items."""
 
     item = models.ForeignKey(
-        Item, null=True, blank=True, related_name="media", on_delete=models.PROTECT
+        Item, null=True, blank=False, related_name="media", on_delete=models.CASCADE
     )
     image = models.ImageField(
-        default="default_item.jpg",
+        default="default_item.png",
         upload_to="items",
         null=False,
         blank=False,
@@ -218,14 +264,8 @@ class SoldStatus(models.Model):
         help_text=_("format: max price = 99999.99"),
         null=True,
     )
-    sold_units = models.IntegerField(
-        default=0,
-        blank=False,
-        help_text=_("number of units/times sold to buyer"),
-        null=True,
-    )
     date_sold = models.DateField(
-        blank=False,
+        blank=True,
         verbose_name=_("date sold"),
         help_text=_("date when item was sold"),
         null=True,
@@ -241,10 +281,10 @@ class SoldStatus(models.Model):
 
 class Comment(MPTTModel):
     item = models.ForeignKey(
-        Item, on_delete=models.CASCADE, related_name="comments", null=True, blank=True
+        Item, on_delete=models.SET_NULL, related_name="comments", null=True, blank=False
     )
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField()
+    author = models.ForeignKey(User, null=True, blank=False, on_delete=models.SET_NULL)
+    content = models.TextField(null=False, blank=False)
     date_commented = models.DateTimeField(
         auto_now_add=True, editable=False, verbose_name=_("date commented")
     )
@@ -256,6 +296,11 @@ class Comment(MPTTModel):
         blank=True,
         verbose_name=_("parent comment"),
         help_text=_("format: not required"),
+    )
+    is_deleted = models.BooleanField(
+        default=False,
+        verbose_name=_("is the comment deleted?"),
+        help_text=_("format: default=false, true=comment is deleted."),
     )
 
     @property

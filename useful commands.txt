@@ -7,3 +7,7 @@ Docker management commands format:
 Docker Postgres Clear All Data:
 	docker-compose down --volumes   OR   docker-compose down --rmi all --volumes
 	docker rm -f -v postgres_container_name
+
+
+For a clean restart:
+	docker system prune -a --volumes

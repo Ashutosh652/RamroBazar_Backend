@@ -1,6 +1,15 @@
 from rest_framework import serializers
+from rest_framework.request import Request
+from rest_framework.test import APIRequestFactory
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from ramrobazar.inventory.models import Category, Brand, Item, Media
+from ramrobazar.inventory.models import (
+    Category,
+    Brand,
+    Item,
+    Media,
+    ItemSpecification,
+    Comment,
+)
 from ramrobazar.account.models import User
 
 
@@ -106,6 +115,52 @@ class MediaSerializer(serializers.ModelSerializer):
         read_only = True
 
 
+class ItemSpecificationSerializer(serializers.ModelSerializer):
+    """Serializer for item specifications."""
+
+    class Meta:
+        model = ItemSpecification
+        fields = ["id", "item", "key", "value"]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer for users (for listing purpose)."""
+
+    detail = serializers.HyperlinkedIdentityField(
+        view_name="drf:users-detail", lookup_field="id"
+    )
+
+    class Meta:
+        model = User
+        fields = ["id", "detail", "first_name", "last_name", "profile_pic"]
+        read_only = True
+        editable = False
+
+
+class UserSerializerForComments(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "first_name", "last_name", "profile_pic"]
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    """Serializer for comments."""
+
+    author = UserSerializerForComments(many=False, read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = [
+            "id",
+            "item",
+            "author",
+            "content",
+            "date_commented",
+            "parent",
+            "is_deleted",
+        ]
+
+
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer for items (for listing purpose)."""
 
@@ -140,7 +195,12 @@ class ItemDetailSerializer(serializers.ModelSerializer):
 
     category = CategorySerializer(many=True, read_only=True)
     media = MediaSerializer(many=True, read_only=True)
+    # media = serializers.SerializerMethodField(source="get_media")
     brand = BrandSerializer(many=False, read_only=True)
+    # specifications = ItemSpecificationSerializer(many=True)
+    specifications = serializers.SerializerMethodField(source="get_specifications")
+    # comments = serializers.SerializerMethodField(source="get_comments")
+    # comments = serializers.HyperlinkedIdentityField(view_name="drf:item-detail")
 
     class Meta:
         model = Item
@@ -151,8 +211,8 @@ class ItemDetailSerializer(serializers.ModelSerializer):
             "description",
             "brand",
             "show_price",
-            "sold_times",
             "location",
+            "specifications",
             "is_visible",
             "is_blocked",
             "created_at",
@@ -160,12 +220,32 @@ class ItemDetailSerializer(serializers.ModelSerializer):
             "seller",
             "category",
             "media",
+            # "comments",
             "users_wishlist",
             "reported_by",
         ]
         read_only = True
         editable = False
         lookup_field = "slug"
+
+    def get_specifications(self, obj):
+        return ItemSpecificationSerializer(obj.item_specification.all(), many=True).data
+
+    # def get_comments(self, obj):
+    #     return CommentSerializer(obj.comments.all(), many=True).data
+
+    # def get_media(self, obj):
+    #     if obj.media.exists():
+    #         return MediaSerializer(obj.media.all(), many=True).data
+    #     else:
+    #         # data = {
+    #         #     "image": "https://res.cloudinary.com/db5bsjxia/image/upload/v1/media/default_item.png"
+    #         # }
+    #         # data = Media(image="https://res.cloudinary.com/db5bsjxia/image/upload/v1/media/default_item.png")
+    #         # print(data)
+    #         serializer = MediaSerializer(data=Media(image="https://res.cloudinary.com/db5bsjxia/image/upload/v1/media/default_item.png"), many=True)
+    #         if serializer.is_valid():
+    #             return serializer.data
 
 
 class AddItemSerializer(serializers.ModelSerializer):
@@ -235,20 +315,6 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         instance.set_password(validated_data["new_password1"])
         instance.save()
         return instance
-
-
-class UserSerializer(serializers.ModelSerializer):
-    """Serializer for users (for listing purpose)."""
-
-    detail = serializers.HyperlinkedIdentityField(
-        view_name="drf:users-detail", lookup_field="id"
-    )
-
-    class Meta:
-        model = User
-        fields = ["id", "detail", "first_name", "last_name", "profile_pic"]
-        read_only = True
-        editable = False
 
 
 class UserDetailSerializer(serializers.ModelSerializer):

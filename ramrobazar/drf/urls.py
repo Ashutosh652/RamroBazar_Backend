@@ -1,3 +1,4 @@
+from email.mime import base
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
@@ -10,6 +11,7 @@ app_name = "drf"
 
 router = DefaultRouter()
 router.register(r"items", views.ItemList, basename="items")
+# router.register(r"<str:slug>/comment", views.CommentDetail, basename="comments")
 router.register(r"item/add", views.AddItem, basename="item-add")
 router.register(r"item/update", views.UpdateItem, basename="item-update")
 router.register(r"media/add", views.AddMedia, basename="media-add")
@@ -21,6 +23,8 @@ router.register(r"user/update", views.UserUpdate, basename="user-update")
 router.register(
     r"user/update-password", views.UserPasswordUpdate, basename="user-update-password"
 )
+router.register(r"comment/add", views.AddComment, basename="comment-add")
+router.register(r"comment/update", views.UpdateComment, basename="comment-update")
 
 urlpatterns = [
     path("", include(router.urls)),

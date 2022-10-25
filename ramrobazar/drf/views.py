@@ -1,8 +1,10 @@
+from crypt import methods
 from functools import partial
 from django.shortcuts import render
 from django.views import View
 from rest_framework import viewsets, mixins, status
 from rest_framework.views import APIView
+from rest_framework.decorators import action
 from rest_framework.permissions import (
     AllowAny,
     IsAuthenticatedOrReadOnly,
@@ -16,7 +18,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from ramrobazar.account.models import User
-from ramrobazar.inventory.models import Brand, Category, Item
+from ramrobazar.inventory.models import Brand, Category, Item, Comment
 from ramrobazar.drf.serializers import (
     MediaSerializer,
     RegisterUserSerializer,
@@ -29,6 +31,7 @@ from ramrobazar.drf.serializers import (
     UserDetailSerializer,
     UserUpdateSerializer,
     ChangePasswordSerializer,
+    CommentSerializer,
 )
 from ramrobazar.drf.permissions import CustomProfileUpdatePermission
 
@@ -61,13 +64,14 @@ class CategoryList(viewsets.GenericViewSet, mixins.ListModelMixin):
 class ItemList(viewsets.GenericViewSet, mixins.ListModelMixin):
     """View for listing and retrieving all items for sale."""
 
-    items_for_sale = [item.id for item in Item.objects.all() if item.sold_status.is_sold == False]
-    queryset = Item.objects.filter(pk__in=items_for_sale)
+    # items_for_sale = [item.id for item in Item.objects.all() if item.sold_status.is_sold == False]
+    # queryset = Item.objects.filter(pk__in=items_for_sale)
+    queryset = Item.objects.all()
     serializer_class = ItemSerializer
     serializer_action_classes = {
         "retrieve": ItemDetailSerializer,
     }
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = [
@@ -86,6 +90,13 @@ class ItemList(viewsets.GenericViewSet, mixins.ListModelMixin):
         item = self.get_object()
         serializer = self.get_serializer(item)
         return Response(serializer.data)
+
+    @action(detail=True, methods=["GET"])
+    def comments(self, request, slug=None):
+        item = Item.objects.get(slug=slug)
+        queryset = Comment.objects.filter(item=item)
+        serializer = CommentSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class AddItem(viewsets.GenericViewSet, mixins.CreateModelMixin):
@@ -280,6 +291,52 @@ class UserPasswordUpdate(viewsets.GenericViewSet, mixins.UpdateModelMixin):
     permission_classes = [CustomProfileUpdatePermission]
     authentication_classes = [JWTAuthentication]
     lookup_field = "id"
+
+
+# class CommentDetail(viewsets.GenericViewSet, mixins.ListModelMixin):
+#     """View for getting the comments for an item."""
+
+#     # queryset = Comment.objects.all()
+#     serializer_class = CommentSerializer
+#     permission_classes = [AllowAny]
+#     lookup_field = "id"
+
+#     def get_queryset(self):
+#         item_slug = self.kwargs['slug']
+#         print("slug = "+item_slug)
+#         return Item.objects.get(slug=item_slug).comments.all()
+#         # comments = Comment.objects.get(item=item_slug)
+
+
+class AddComment(viewsets.GenericViewSet, mixins.CreateModelMixin):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    # permission_classes = [AllowAny]
+
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        author = request.user
+        self.perform_create(serializer, author)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer, author):
+        serializer.save(author=author)
+
+
+class UpdateComment(viewsets.GenericViewSet, mixins.UpdateModelMixin):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    queryset = Comment.objects.all()
+
+    def update(self, request, *args, **kwargs):
+        comment = self.get_object()
+        serializer = self.get_serializer(comment, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # class BlackListToken(viewsets.GenericViewSet):

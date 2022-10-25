@@ -30,6 +30,16 @@
                 </p>
         </div><br>
         <div class='content'>
+                <p><strong>Comments of an item:</strong><br>
+                        <p>Url format =
+                                http://afternoon-thicket-97192.herokuapp.com/api/items/{slug}/comments<br>
+                                <p>Example: <a
+                                                href='http://afternoon-thicket-97192.herokuapp.com/api/items/samsung-galaxy-s22-ultra-1111/comments'>http://afternoon-thicket-97192.herokuapp.com/api/items/samsung-galaxy-s22-ultra-1111/comments</a>
+                                </p>
+                        </p>
+                </p>
+        </div><br>
+        <div class='content'>
                 <p><strong>Add Item:</strong></p>
                 <p>Authorization: Required</p>
                 <p>Content-Type: application/json<br>
@@ -231,7 +241,8 @@
                                 token}.'<br>
                                 <p>Authorization: Required</p>
                                 <p>Content-Type: multipart/form</p>
-                                <p><pre><code>
+                                <p>
+                                        <pre><code>
                                         Request Type: Patch
                                         {
                                                 "first_name": "TestUser1",
@@ -242,7 +253,8 @@
                                                 "address": null,
                                                 "date_of_birth": null
                                         }
-                                </code></pre></p>
+                                </code></pre>
+                                </p>
                         </p>
                         <p>Url format = http://afternoon-thicket-97192.herokuapp.com/api/user/update/{user_id}
                                 <br>Example:<a
