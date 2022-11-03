@@ -86,6 +86,9 @@ class Item(models.Model):
     seller = models.ForeignKey(
         User, null=False, blank=False, related_name="item", on_delete=models.CASCADE
     )
+    users_wishlist = models.ManyToManyField(
+        User, related_name="users_wishlist", blank=True
+    )
     description = models.TextField(
         null=False,
         blank=True,
@@ -104,6 +107,11 @@ class Item(models.Model):
         verbose_name=_("item blocked"),
         help_text=_("format: true->product is blocked"),
     )
+    is_sold = models.BooleanField(
+        default=False,
+        verbose_name=_("item sold"),
+        help_text=_("format: true->product has been sold"),
+    )
     created_at = models.DateTimeField(
         null=False,
         blank=True,
@@ -118,9 +126,6 @@ class Item(models.Model):
         auto_now=True,
         verbose_name=_("date item was last updated"),
         help_text=_("format: Y-m-d H:M:S"),
-    )
-    users_wishlist = models.ManyToManyField(
-        User, related_name="user_wishlist", blank=True
     )
     reported_by = models.ManyToManyField(User, related_name="reported_item", blank=True)
     brand = models.ForeignKey(
@@ -141,6 +146,9 @@ class Item(models.Model):
     location = models.TextField(
         null=True, blank=True, verbose_name=_("available locations")
     )
+
+    class Meta:
+        ordering = ("-updated_at",)
 
     def __str__(self):
         return self.name

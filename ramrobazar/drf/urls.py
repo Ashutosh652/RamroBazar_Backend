@@ -10,9 +10,20 @@ from ramrobazar.drf import views
 app_name = "drf"
 
 router = DefaultRouter()
+router.register(r"brands", views.BrandList, basename="brands")
 router.register(r"items", views.ItemList, basename="items")
 # router.register(r"<str:slug>/comment", views.CommentDetail, basename="comments")
 router.register(r"item/add", views.AddItem, basename="item-add")
+router.register(
+    r"item/specification/add",
+    views.AddItemSpecification,
+    basename="item-specification-add",
+)
+router.register(
+    r"item/specification/remove",
+    views.RemoveItemSpecification,
+    basename="item-specification-remove",
+)
 router.register(r"item/update", views.UpdateItem, basename="item-update")
 router.register(r"media/add", views.AddMedia, basename="media-add")
 router.register(r"categories", views.CategoryList, basename="categories")
@@ -23,6 +34,7 @@ router.register(r"user/update", views.UserUpdate, basename="user-update")
 router.register(
     r"user/update-password", views.UserPasswordUpdate, basename="user-update-password"
 )
+router.register(r"user/wishlist", views.GetWishList, basename="wishlist")
 router.register(r"comment/add", views.AddComment, basename="comment-add")
 router.register(r"comment/update", views.UpdateComment, basename="comment-update")
 

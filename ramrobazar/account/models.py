@@ -1,3 +1,4 @@
+from email.policy import default
 from io import BytesIO
 from django.db import models
 from django.utils import timezone
@@ -42,6 +43,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     contact_number = PhoneNumberField(blank=False, null=False, unique=True)
+    show_contact_number = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now, blank=True)
     is_contact_number_verified = models.BooleanField(default=False)
     is_blocked = models.BooleanField(default=False) #represents if the account of the user is blocked by admin

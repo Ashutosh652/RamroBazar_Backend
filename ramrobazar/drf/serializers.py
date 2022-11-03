@@ -168,6 +168,7 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
         view_name="drf:items-detail", lookup_field="slug"
     )
     media = MediaSerializer(many=True, read_only=True)
+    users_wishlist = serializers.SerializerMethodField(source="get_users_wishlist")
 
     class Meta:
         model = Item
@@ -179,15 +180,20 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
             "media",
             "is_visible",
             "is_blocked",
+            "is_sold",
             "show_price",
             "description",
             "location",
             "created_at",
             "updated_at",
+            "users_wishlist",
         ]
         read_only = True
         editable = False
         depth = 0
+    
+    def get_users_wishlist(self, obj):
+        return UserSerializer(obj.users_wishlist.all(), many=True, context=self.context).data
 
 
 class ItemDetailSerializer(serializers.ModelSerializer):
@@ -215,6 +221,7 @@ class ItemDetailSerializer(serializers.ModelSerializer):
             "specifications",
             "is_visible",
             "is_blocked",
+            "is_sold",
             "created_at",
             "updated_at",
             "seller",
@@ -262,8 +269,10 @@ class AddItemSerializer(serializers.ModelSerializer):
             "description",
             "brand",
             "show_price",
+            "updated_at",
             "location",
             "is_visible",
+            "is_sold",
             "category",
         ]
 
@@ -320,8 +329,10 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     """Serializer for users (for retrieving/detail purpose)."""
 
-    items_for_sale = serializers.SerializerMethodField(source="get_items_for_sale")
-    items_sold = serializers.SerializerMethodField(source="get_items_sold")
+    # items_for_sale = serializers.SerializerMethodField(source="get_items_for_sale")
+    # items_sold = serializers.SerializerMethodField(source="get_items_sold")
+    all_items = serializers.SerializerMethodField(source="get_all_items")
+    wishlist = serializers.SerializerMethodField(source="get_wishlist")
 
     class Meta:
         model = User
@@ -330,6 +341,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "contact_number",
+            "show_contact_number",
             "date_joined",
             "is_contact_number_verified",
             "is_blocked",
@@ -339,21 +351,31 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "address",
             "profile_pic",
             "date_of_birth",
-            "items_for_sale",
-            "items_sold",
+            # "items_for_sale",
+            # "items_sold",
+            "all_items",
+            "wishlist",
         ]
 
-    def get_items_for_sale(self, obj):
-        items_for_sale = [
-            item for item in obj.item.all() if item.sold_status.is_sold == False
-        ]
-        return ItemSerializer(items_for_sale, many=True, context=self.context).data
+    # def get_items_for_sale(self, obj):
+    #     items_for_sale = [
+    #         item for item in obj.item.all() if item.sold_status.is_sold == False
+    #     ]
+    #     return ItemSerializer(items_for_sale, many=True, context=self.context).data
 
-    def get_items_sold(self, obj):
-        sold_items = [
-            item for item in obj.item.all() if item.sold_status.is_sold == True
-        ]
-        return ItemSerializer(sold_items, many=True, context=self.context).data
+    # def get_items_sold(self, obj):
+    #     sold_items = [
+    #         item for item in obj.item.all() if item.sold_status.is_sold == True
+    #     ]
+    #     return ItemSerializer(sold_items, many=True, context=self.context).data
+
+    def get_all_items(self, obj):
+        return ItemSerializer(obj.item.all(), many=True, context=self.context).data
+
+    def get_wishlist(self, obj):
+        return ItemSerializer(
+            Item.objects.filter(users_wishlist=obj.id), many=True, context=self.context
+        ).data
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
@@ -369,6 +391,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "last_name",
             "profile_pic",
             "contact_number",
+            "show_contact_number",
             "email",
             "address",
             "date_of_birth",
